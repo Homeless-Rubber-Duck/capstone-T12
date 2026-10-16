@@ -29,6 +29,8 @@ npm run dev
 npm run dev -- --open
 ```
 
+With your forked repo, make feature branches for the issues you take on then make a PR.
+
 ## Building
 
 To create a production version of your app:
