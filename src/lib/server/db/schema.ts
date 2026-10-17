@@ -1,7 +1,187 @@
-import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { sqliteTable, integer, text, real } from 'drizzle-orm/sqlite-core';
+import { sql } from 'drizzle-orm';
 
-export const task = sqliteTable('task', {
-	id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
-	title: text('title').notNull(),
-	priority: integer('priority').notNull().default(1)
+// Heritage Café database schema, based on Agustin's ERD v3.
+// SQLite notes: INT → integer, VARCHAR → text, DECIMAL → real,
+// BOOLEAN → integer stored as 0/1, TIMESTAMP/DATE → text (ISO date strings).
+
+// Default value for created_at columns: the current date and time
+const now = sql`(CURRENT_TIMESTAMP)`;
+
+// ---------- Staff ----------
+
+// Café employees who manage orders
+export const staff = sqliteTable('staff', {
+	staffId: integer('staff_id').primaryKey({ autoIncrement: true }),
+	email: text('email', { length: 255 }).notNull().unique(),
+	fullName: text('full_name', { length: 120 }).notNull(),
+	role: text('role', { length: 30 }).notNull()
+});
+
+// Login info for staff (kept separate from the staff profile)
+export const staffAuthentication = sqliteTable('staff_authentication', {
+	staffAuthId: integer('staff_auth_id').primaryKey({ autoIncrement: true }),
+	staffId: integer('staff_id')
+		.notNull()
+		.references(() => staff.staffId),
+	username: text('username', { length: 100 }).notNull().unique(),
+	passwordHash: text('password_hash', { length: 255 }).notNull(),
+	createdAt: text('created_at').notNull().default(now)
+});
+
+// ---------- Customers ----------
+
+// People who place pickup orders
+export const customer = sqliteTable('customer', {
+	customerId: integer('customer_id').primaryKey({ autoIncrement: true }),
+	fullName: text('full_name', { length: 120 }).notNull(),
+	email: text('email', { length: 255 }).notNull().unique(),
+	phone: text('phone', { length: 20 }).notNull()
+});
+
+// Login info for customers
+export const customerAuthentication = sqliteTable('customer_authentication', {
+	customerAuthId: integer('customer_auth_id').primaryKey({ autoIncrement: true }),
+	customerId: integer('customer_id')
+		.notNull()
+		.references(() => customer.customerId),
+	passwordHash: text('password_hash', { length: 255 }).notNull(),
+	createdAt: text('created_at').notNull().default(now)
+});
+
+// ---------- Menu ----------
+
+// Menu sections like Coffee, Tea, Pastries
+export const menuCategory = sqliteTable('menu_category', {
+	categoryId: integer('category_id').primaryKey({ autoIncrement: true }),
+	categoryName: text('category_name', { length: 80 }).notNull(),
+	displayOrder: integer('display_order').notNull(),
+	isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true)
+});
+
+// Individual things you can order
+export const menuItem = sqliteTable('menu_item', {
+	menuItemId: integer('menu_item_id').primaryKey({ autoIncrement: true }),
+	name: text('name', { length: 120 }).notNull(),
+	description: text('description', { length: 500 }),
+	price: real('price').notNull(),
+	isAvailable: integer('is_available', { mode: 'boolean' }).notNull().default(true),
+	imageUrl: text('image_url', { length: 500 }),
+	categoryId: integer('category_id')
+		.notNull()
+		.references(() => menuCategory.categoryId)
+});
+
+// ---------- Orders ----------
+
+// Lookup list of order statuses (e.g. Received, Preparing, Ready, Picked Up)
+export const orderStatus = sqliteTable('order_status', {
+	statusId: integer('status_id').primaryKey({ autoIncrement: true }),
+	statusName: text('status_name', { length: 40 }).notNull().unique(),
+	description: text('description', { length: 255 })
+});
+
+// One pickup order placed by a customer
+export const customerOrder = sqliteTable('customer_order', {
+	orderId: integer('order_id').primaryKey({ autoIncrement: true }),
+	customerId: integer('customer_id')
+		.notNull()
+		.references(() => customer.customerId),
+	statusId: integer('status_id')
+		.notNull()
+		.references(() => orderStatus.statusId),
+	pickupTime: text('pickup_time').notNull(),
+	createdAt: text('created_at').notNull().default(now)
+});
+
+// Each line on an order (e.g. 2x Latte)
+export const orderItem = sqliteTable('order_item', {
+	orderItemId: integer('order_item_id').primaryKey({ autoIncrement: true }),
+	orderId: integer('order_id')
+		.notNull()
+		.references(() => customerOrder.orderId),
+	menuItemId: integer('menu_item_id')
+		.notNull()
+		.references(() => menuItem.menuItemId),
+	quantity: integer('quantity').notNull(),
+	// price at the time of the order, so old orders don't change if the menu price changes
+	unitPrice: real('unit_price').notNull(),
+	itemNotes: text('item_notes', { length: 500 })
+});
+
+// Log of every status change on an order, and which staff member made it
+export const orderStatusHistory = sqliteTable('order_status_history', {
+	statusHistoryId: integer('status_history_id').primaryKey({ autoIncrement: true }),
+	orderId: integer('order_id')
+		.notNull()
+		.references(() => customerOrder.orderId),
+	statusId: integer('status_id')
+		.notNull()
+		.references(() => orderStatus.statusId),
+	changedByStaffId: integer('changed_by_staff_id').references(() => staff.staffId),
+	changedAt: text('changed_at').notNull().default(now),
+	note: text('note', { length: 255 })
+});
+
+// ---------- Reporting ----------
+
+// Saved order activity reports generated by staff
+export const orderActivityReport = sqliteTable('order_activity_report', {
+	reportId: integer('report_id').primaryKey({ autoIncrement: true }),
+	generatedByStaffId: integer('generated_by_staff_id')
+		.notNull()
+		.references(() => staff.staffId),
+	reportDate: text('report_date').notNull(),
+	orderCount: integer('order_count').notNull(),
+	statusSummary: text('status_summary', { length: 255 })
+});
+
+// ---------- Modifiers ----------
+// Drink/food customizations, e.g. group "Milk" with options Oat (+$0.75), Almond, Whole
+
+// A set of choices, like "Milk" or "Size"
+export const modifierGroup = sqliteTable('modifier_group', {
+	modifierGroupId: integer('modifier_group_id').primaryKey({ autoIncrement: true }),
+	groupName: text('group_name', { length: 80 }).notNull(),
+	minSelection: integer('min_selection').notNull(), // 0 = optional, 1 = must pick one
+	maxSelection: integer('max_selection'), // empty = no limit
+	displayOrder: integer('display_order').notNull()
+});
+
+// One choice inside a group, like "Oat Milk", and how much it adds to the price
+export const modifierOption = sqliteTable('modifier_option', {
+	modifierOptionId: integer('modifier_option_id').primaryKey({ autoIncrement: true }),
+	modifierGroupId: integer('modifier_group_id')
+		.notNull()
+		.references(() => modifierGroup.modifierGroupId),
+	optionName: text('option_name', { length: 80 }).notNull(),
+	priceAdjustment: real('price_adjustment').notNull().default(0),
+	isAvailable: integer('is_available', { mode: 'boolean' }).notNull().default(true),
+	displayOrder: integer('display_order').notNull()
+});
+
+// Which groups apply to which menu items (lattes get "Milk", muffins don't)
+export const menuItemModifierGroup = sqliteTable('menu_item_modifier_group', {
+	menuItemModifierGroupId: integer('menu_item_modifier_group_id').primaryKey({
+		autoIncrement: true
+	}),
+	menuItemId: integer('menu_item_id')
+		.notNull()
+		.references(() => menuItem.menuItemId),
+	modifierGroupId: integer('modifier_group_id')
+		.notNull()
+		.references(() => modifierGroup.modifierGroupId)
+});
+
+// The options a customer actually picked for a line on their order
+export const orderItemModifier = sqliteTable('order_item_modifier', {
+	orderItemModifierId: integer('order_item_modifier_id').primaryKey({ autoIncrement: true }),
+	orderItemId: integer('order_item_id')
+		.notNull()
+		.references(() => orderItem.orderItemId),
+	modifierOptionId: integer('modifier_option_id')
+		.notNull()
+		.references(() => modifierOption.modifierOptionId),
+	// price at the time of the order, same idea as order_item.unit_price
+	priceAdjustment: real('price_adjustment').notNull()
 });
