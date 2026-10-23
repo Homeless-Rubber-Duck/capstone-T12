@@ -1,0 +1,127 @@
+/* Change these values to customize the draft theme. */
+:root {
+  --cafe-accent: #405949;
+  --cafe-footer: #f4f5f2;
+  --cafe-text: #28372d;
+  --footer-summary-height: 120px;
+}
+
+body {
+  color: var(--cafe-text);
+}
+
+.site-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.site-main {
+  flex: 1;
+  padding-block: 3rem calc(var(--footer-summary-height) + 3rem);
+  scroll-margin-top: 11rem;
+}
+
+.site-brand {
+  color: var(--cafe-text);
+  line-height: 1.25;
+}
+
+.site-brand small {
+  font-size: 0.75rem;
+  font-weight: normal;
+}
+
+.site-brand img {
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.nav-link {
+  color: var(--cafe-text);
+}
+
+.nav-link:hover,
+.nav-link.active {
+  background: #eef2ed;
+  color: var(--cafe-accent);
+}
+
+.employee-navigation > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 0.45rem;
+}
+
+.employee-navigation > summary::-webkit-details-marker {
+  display: none;
+}
+
+.employee-panel {
+  top: calc(100% + 0.75rem);
+  min-width: 150px;
+  z-index: 1;
+}
+
+.employee-panel a:hover {
+  background: #eef2ed;
+}
+
+.site-footer {
+  --footer-details-height: 240px;
+
+  position: sticky;
+  bottom: calc(-1 * var(--footer-details-height));
+  background: var(--cafe-footer);
+  z-index: 1010;
+  flex-shrink: 0;
+}
+
+.footer-summary {
+  background: var(--cafe-footer);
+}
+
+.site-footer a:not(.site-brand) {
+  color: #234e39;
+}
+
+.facebook-link svg {
+  color: #0866ff;
+  flex-shrink: 0;
+}
+
+:focus-visible {
+  outline: 3px solid #326d50;
+  outline-offset: 3px;
+}
+
+@media (max-width: 991.98px) {
+  .public-navigation {
+    order: 3;
+    width: 100%;
+  }
+
+  .employee-navigation {
+    margin-left: auto;
+  }
+
+  .public-navigation .nav-link {
+    padding-inline: 0.7rem !important;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .footer-summary .site-brand img {
+    width: 32px;
+    height: 32px;
+  }
+
+  .footer-summary address {
+    flex-basis: 100%;
+    order: 3;
+  }
+
+  .footer-summary .container {
+    gap: 0.65rem !important;
+  }
+}
