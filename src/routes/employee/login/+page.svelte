@@ -1,20 +1,8 @@
 <script lang="ts">
-  let username = $state('');
-  let password = $state('');
-  let error = $state('');
+  import { enhance } from '$app/forms';
+  import type { ActionData } from './$types';
 
-  function handleLogin(event: SubmitEvent) {
-    event.preventDefault();
-    error = '';
-
-    if (!username.trim() || !password) {
-      error = 'Please enter your username and password.';
-      return;
-    }
-
-    // Ethan's authentication backend will be connected here.
-    error = 'Employee authentication is not connected yet.';
-  }
+  let { form }: { form: ActionData | null } = $props();
 </script>
 
 <svelte:head>
@@ -27,13 +15,13 @@
     <h2>Employee Login</h2>
     <p>Sign in to manage incoming orders.</p>
 
-    <form onsubmit={handleLogin}>
+    <form method="POST" use:enhance>
       <label for="username">Username</label>
       <input
         id="username"
         type="text"
+        name="username"
         autocomplete="username"
-        bind:value={username}
         required
       />
 
@@ -41,13 +29,13 @@
       <input
         id="password"
         type="password"
+        name="password"
         autocomplete="current-password"
-        bind:value={password}
         required
       />
 
-      {#if error}
-        <p class="error" role="alert">{error}</p>
+      {#if form?.error}
+        <p class="error" role="alert">{form.error}</p>
       {/if}
 
       <button type="submit">Sign In</button>

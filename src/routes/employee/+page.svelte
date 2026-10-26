@@ -26,11 +26,15 @@
 
 <section class="page">
   <p class="eyebrow">EMPLOYEE WORKSPACE</p>
-  <h1>Order Management</h1>
+  <div class="dashboard-header">
+    <h1>Order Management</h1>
+    <form method="POST" action="/employee/logout">
+      <button type="submit">Log out</button>
+    </form>
+  </div>
 
   <p class="notice">
-    Order status updates will be available once employee authentication
-    is connected.
+    Select an incoming order to review its details and update its status.
   </p>
 
   <h2>Incoming Orders</h2>
@@ -84,15 +88,20 @@
       <p>Pickup: {selected.pickup}</p>
       <p>Status: {selected.status}</p>
 
-      <div class="queue-controls">
+      <form method="POST" action="?/updateStatus" class="queue-controls">
+        <input type="hidden" name="orderId" value={selected.id} />
+
         <label for="new-status">Update status</label>
-        <select id="new-status" disabled>
-          <option>Waiting for employee authentication</option>
+        <select id="new-status" name="statusId" required>
           {#each statuses as status}
-            <option value={status.id}>{status.name}</option>
+            <option value={status.id} selected={status.name === selected.status}>
+              {status.name}
+            </option>
           {/each}
         </select>
-      </div>
+
+        <button type="submit">Save status</button>
+      </form>
 
       <strong>Items:</strong>
       <ul>
@@ -125,4 +134,12 @@
   .status { background: #efe5d6; padding: .3rem .6rem; border-radius: 20px; }
   button { background: #493426; color: white; border: 0; padding: .6rem .9rem; border-radius: 7px; cursor: pointer; }
   select { padding: .55rem; border: 1px solid #c8b7a6; border-radius: 6px; }
+
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
 </style>
