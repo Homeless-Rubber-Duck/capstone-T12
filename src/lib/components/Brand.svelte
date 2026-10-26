@@ -8,7 +8,6 @@
     class = "site-brand text-decoration-none d-inline-flex align-items-center gap-2"
     href="/"
 >
-    <img src = {site.logo} alt ="" width="42" height ="42" />
 
     <span>
         <strong class = "d-block">{site.name}</strong>
