@@ -43,6 +43,8 @@ npm run dev
 npm run dev -- --open
 ```
 
+With your forked repo, make feature branches for the issues you take on then make a PR.
+
 ## Building
 
 To create a production version of your app:
@@ -52,5 +54,3 @@ npm run build
 ```
 
 You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
