@@ -1,5 +1,5 @@
 <script lang="ts">
- import { initialMenu, initialOrders, type CafeOrder, type MenuItem } from '$lib/demo-data';
+ import { initialMenu, initialOrders, type CafeOrder, type MenuItem } from '#lib/demo-data';
  let orders: CafeOrder[] = $state(initialOrders.map((order) => ({ ...order, items: [...order.items] })));
  let menu: MenuItem[] = $state(initialMenu.map((item) => ({ ...item })));
  let selectedId = $state<number | null>(null);
