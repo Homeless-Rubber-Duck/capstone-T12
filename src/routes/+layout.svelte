@@ -1,4 +1,4 @@
-<script lang="ts">import favicon from '$lib/assets/favicon.svg'; let { children } = $props();</script>
+<script lang="ts">import favicon from '#lib/assets/favicon.svg'; let { children } = $props();</script>
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 <header><a class="brand" href="/">Heritage Café</a><nav aria-label="Main navigation"><a href="/">Home</a><a href="/menu">Menu</a><a href="/employee/login">Employee</a></nav></header>
 <main>{@render children()}</main>
