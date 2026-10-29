@@ -1,0 +1,1192 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "id": "a556bbf1-aca9-49dd-951c-f4f62b9feeb0",
+  "prevIds": [
+    "00000000-0000-0000-0000-000000000000"
+  ],
+  "ddl": [
+    {
+      "name": "customer",
+      "entityType": "tables"
+    },
+    {
+      "name": "customer_authentication",
+      "entityType": "tables"
+    },
+    {
+      "name": "customer_order",
+      "entityType": "tables"
+    },
+    {
+      "name": "menu_category",
+      "entityType": "tables"
+    },
+    {
+      "name": "menu_item",
+      "entityType": "tables"
+    },
+    {
+      "name": "menu_item_modifier_group",
+      "entityType": "tables"
+    },
+    {
+      "name": "modifier_group",
+      "entityType": "tables"
+    },
+    {
+      "name": "modifier_option",
+      "entityType": "tables"
+    },
+    {
+      "name": "order_activity_report",
+      "entityType": "tables"
+    },
+    {
+      "name": "order_item",
+      "entityType": "tables"
+    },
+    {
+      "name": "order_item_modifier",
+      "entityType": "tables"
+    },
+    {
+      "name": "order_status",
+      "entityType": "tables"
+    },
+    {
+      "name": "order_status_history",
+      "entityType": "tables"
+    },
+    {
+      "name": "staff",
+      "entityType": "tables"
+    },
+    {
+      "name": "staff_authentication",
+      "entityType": "tables"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": true,
+      "default": null,
+      "generated": null,
+      "name": "customer_id",
+      "entityType": "columns",
+      "table": "customer"
+    },
+    {
+      "type": "text(120)",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "full_name",
+      "entityType": "columns",
+      "table": "customer"
+    },
+    {
+      "type": "text(255)",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "email",
+      "entityType": "columns",
+      "table": "customer"
+    },
+    {
+      "type": "text(20)",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "phone",
+      "entityType": "columns",
+      "table": "customer"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": true,
+      "default": null,
+      "generated": null,
+      "name": "customer_auth_id",
+      "entityType": "columns",
+      "table": "customer_authentication"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "customer_id",
+      "entityType": "columns",
+      "table": "customer_authentication"
+    },
+    {
+      "type": "text(255)",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "password_hash",
+      "entityType": "columns",
+      "table": "customer_authentication"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": "(CURRENT_TIMESTAMP)",
+      "generated": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "table": "customer_authentication"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": true,
+      "default": null,
+      "generated": null,
+      "name": "order_id",
+      "entityType": "columns",
+      "table": "customer_order"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "customer_id",
+      "entityType": "columns",
+      "table": "customer_order"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "status_id",
+      "entityType": "columns",
+      "table": "customer_order"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "pickup_time",
+      "entityType": "columns",
+      "table": "customer_order"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": "(CURRENT_TIMESTAMP)",
+      "generated": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "table": "customer_order"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": true,
+      "default": null,
+      "generated": null,
+      "name": "category_id",
+      "entityType": "columns",
+      "table": "menu_category"
+    },
+    {
+      "type": "text(80)",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "category_name",
+      "entityType": "columns",
+      "table": "menu_category"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "display_order",
+      "entityType": "columns",
+      "table": "menu_category"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": "true",
+      "generated": null,
+      "name": "is_active",
+      "entityType": "columns",
+      "table": "menu_category"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": true,
+      "default": null,
+      "generated": null,
+      "name": "menu_item_id",
+      "entityType": "columns",
+      "table": "menu_item"
+    },
+    {
+      "type": "text(120)",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "name",
+      "entityType": "columns",
+      "table": "menu_item"
+    },
+    {
+      "type": "text(500)",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "description",
+      "entityType": "columns",
+      "table": "menu_item"
+    },
+    {
+      "type": "real",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "price",
+      "entityType": "columns",
+      "table": "menu_item"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": "true",
+      "generated": null,
+      "name": "is_available",
+      "entityType": "columns",
+      "table": "menu_item"
+    },
+    {
+      "type": "text(500)",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "image_url",
+      "entityType": "columns",
+      "table": "menu_item"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "category_id",
+      "entityType": "columns",
+      "table": "menu_item"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": true,
+      "default": null,
+      "generated": null,
+      "name": "menu_item_modifier_group_id",
+      "entityType": "columns",
+      "table": "menu_item_modifier_group"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "menu_item_id",
+      "entityType": "columns",
+      "table": "menu_item_modifier_group"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "modifier_group_id",
+      "entityType": "columns",
+      "table": "menu_item_modifier_group"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": true,
+      "default": null,
+      "generated": null,
+      "name": "modifier_group_id",
+      "entityType": "columns",
+      "table": "modifier_group"
+    },
+    {
+      "type": "text(80)",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "group_name",
+      "entityType": "columns",
+      "table": "modifier_group"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "min_selection",
+      "entityType": "columns",
+      "table": "modifier_group"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "max_selection",
+      "entityType": "columns",
+      "table": "modifier_group"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "display_order",
+      "entityType": "columns",
+      "table": "modifier_group"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": true,
+      "default": null,
+      "generated": null,
+      "name": "modifier_option_id",
+      "entityType": "columns",
+      "table": "modifier_option"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "modifier_group_id",
+      "entityType": "columns",
+      "table": "modifier_option"
+    },
+    {
+      "type": "text(80)",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "option_name",
+      "entityType": "columns",
+      "table": "modifier_option"
+    },
+    {
+      "type": "real",
+      "notNull": true,
+      "autoincrement": false,
+      "default": "0",
+      "generated": null,
+      "name": "price_adjustment",
+      "entityType": "columns",
+      "table": "modifier_option"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": "true",
+      "generated": null,
+      "name": "is_available",
+      "entityType": "columns",
+      "table": "modifier_option"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "display_order",
+      "entityType": "columns",
+      "table": "modifier_option"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": true,
+      "default": null,
+      "generated": null,
+      "name": "report_id",
+      "entityType": "columns",
+      "table": "order_activity_report"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "generated_by_staff_id",
+      "entityType": "columns",
+      "table": "order_activity_report"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "report_date",
+      "entityType": "columns",
+      "table": "order_activity_report"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "order_count",
+      "entityType": "columns",
+      "table": "order_activity_report"
+    },
+    {
+      "type": "text(255)",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "status_summary",
+      "entityType": "columns",
+      "table": "order_activity_report"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": true,
+      "default": null,
+      "generated": null,
+      "name": "order_item_id",
+      "entityType": "columns",
+      "table": "order_item"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "order_id",
+      "entityType": "columns",
+      "table": "order_item"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "menu_item_id",
+      "entityType": "columns",
+      "table": "order_item"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "quantity",
+      "entityType": "columns",
+      "table": "order_item"
+    },
+    {
+      "type": "real",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "unit_price",
+      "entityType": "columns",
+      "table": "order_item"
+    },
+    {
+      "type": "text(500)",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "item_notes",
+      "entityType": "columns",
+      "table": "order_item"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": true,
+      "default": null,
+      "generated": null,
+      "name": "order_item_modifier_id",
+      "entityType": "columns",
+      "table": "order_item_modifier"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "order_item_id",
+      "entityType": "columns",
+      "table": "order_item_modifier"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "modifier_option_id",
+      "entityType": "columns",
+      "table": "order_item_modifier"
+    },
+    {
+      "type": "real",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "price_adjustment",
+      "entityType": "columns",
+      "table": "order_item_modifier"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": true,
+      "default": null,
+      "generated": null,
+      "name": "status_id",
+      "entityType": "columns",
+      "table": "order_status"
+    },
+    {
+      "type": "text(40)",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "status_name",
+      "entityType": "columns",
+      "table": "order_status"
+    },
+    {
+      "type": "text(255)",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "description",
+      "entityType": "columns",
+      "table": "order_status"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": true,
+      "default": null,
+      "generated": null,
+      "name": "status_history_id",
+      "entityType": "columns",
+      "table": "order_status_history"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "order_id",
+      "entityType": "columns",
+      "table": "order_status_history"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "status_id",
+      "entityType": "columns",
+      "table": "order_status_history"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "changed_by_staff_id",
+      "entityType": "columns",
+      "table": "order_status_history"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": "(CURRENT_TIMESTAMP)",
+      "generated": null,
+      "name": "changed_at",
+      "entityType": "columns",
+      "table": "order_status_history"
+    },
+    {
+      "type": "text(255)",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "note",
+      "entityType": "columns",
+      "table": "order_status_history"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": true,
+      "default": null,
+      "generated": null,
+      "name": "staff_id",
+      "entityType": "columns",
+      "table": "staff"
+    },
+    {
+      "type": "text(255)",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "email",
+      "entityType": "columns",
+      "table": "staff"
+    },
+    {
+      "type": "text(120)",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "full_name",
+      "entityType": "columns",
+      "table": "staff"
+    },
+    {
+      "type": "text(30)",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "role",
+      "entityType": "columns",
+      "table": "staff"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": true,
+      "default": null,
+      "generated": null,
+      "name": "staff_auth_id",
+      "entityType": "columns",
+      "table": "staff_authentication"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "staff_id",
+      "entityType": "columns",
+      "table": "staff_authentication"
+    },
+    {
+      "type": "text(100)",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "username",
+      "entityType": "columns",
+      "table": "staff_authentication"
+    },
+    {
+      "type": "text(255)",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "password_hash",
+      "entityType": "columns",
+      "table": "staff_authentication"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": "(CURRENT_TIMESTAMP)",
+      "generated": null,
+      "name": "created_at",
+      "entityType": "columns",
+      "table": "staff_authentication"
+    },
+    {
+      "columns": [
+        "customer_id"
+      ],
+      "tableTo": "customer",
+      "columnsTo": [
+        "customer_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "nameExplicit": false,
+      "name": "fk_customer_authentication_customer_id_customer_customer_id_fk",
+      "entityType": "fks",
+      "table": "customer_authentication"
+    },
+    {
+      "columns": [
+        "customer_id"
+      ],
+      "tableTo": "customer",
+      "columnsTo": [
+        "customer_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "nameExplicit": false,
+      "name": "fk_customer_order_customer_id_customer_customer_id_fk",
+      "entityType": "fks",
+      "table": "customer_order"
+    },
+    {
+      "columns": [
+        "status_id"
+      ],
+      "tableTo": "order_status",
+      "columnsTo": [
+        "status_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "nameExplicit": false,
+      "name": "fk_customer_order_status_id_order_status_status_id_fk",
+      "entityType": "fks",
+      "table": "customer_order"
+    },
+    {
+      "columns": [
+        "category_id"
+      ],
+      "tableTo": "menu_category",
+      "columnsTo": [
+        "category_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "nameExplicit": false,
+      "name": "fk_menu_item_category_id_menu_category_category_id_fk",
+      "entityType": "fks",
+      "table": "menu_item"
+    },
+    {
+      "columns": [
+        "menu_item_id"
+      ],
+      "tableTo": "menu_item",
+      "columnsTo": [
+        "menu_item_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "nameExplicit": false,
+      "name": "fk_menu_item_modifier_group_menu_item_id_menu_item_menu_item_id_fk",
+      "entityType": "fks",
+      "table": "menu_item_modifier_group"
+    },
+    {
+      "columns": [
+        "modifier_group_id"
+      ],
+      "tableTo": "modifier_group",
+      "columnsTo": [
+        "modifier_group_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "nameExplicit": false,
+      "name": "fk_menu_item_modifier_group_modifier_group_id_modifier_group_modifier_group_id_fk",
+      "entityType": "fks",
+      "table": "menu_item_modifier_group"
+    },
+    {
+      "columns": [
+        "modifier_group_id"
+      ],
+      "tableTo": "modifier_group",
+      "columnsTo": [
+        "modifier_group_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "nameExplicit": false,
+      "name": "fk_modifier_option_modifier_group_id_modifier_group_modifier_group_id_fk",
+      "entityType": "fks",
+      "table": "modifier_option"
+    },
+    {
+      "columns": [
+        "generated_by_staff_id"
+      ],
+      "tableTo": "staff",
+      "columnsTo": [
+        "staff_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "nameExplicit": false,
+      "name": "fk_order_activity_report_generated_by_staff_id_staff_staff_id_fk",
+      "entityType": "fks",
+      "table": "order_activity_report"
+    },
+    {
+      "columns": [
+        "order_id"
+      ],
+      "tableTo": "customer_order",
+      "columnsTo": [
+        "order_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "nameExplicit": false,
+      "name": "fk_order_item_order_id_customer_order_order_id_fk",
+      "entityType": "fks",
+      "table": "order_item"
+    },
+    {
+      "columns": [
+        "menu_item_id"
+      ],
+      "tableTo": "menu_item",
+      "columnsTo": [
+        "menu_item_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "nameExplicit": false,
+      "name": "fk_order_item_menu_item_id_menu_item_menu_item_id_fk",
+      "entityType": "fks",
+      "table": "order_item"
+    },
+    {
+      "columns": [
+        "order_item_id"
+      ],
+      "tableTo": "order_item",
+      "columnsTo": [
+        "order_item_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "nameExplicit": false,
+      "name": "fk_order_item_modifier_order_item_id_order_item_order_item_id_fk",
+      "entityType": "fks",
+      "table": "order_item_modifier"
+    },
+    {
+      "columns": [
+        "modifier_option_id"
+      ],
+      "tableTo": "modifier_option",
+      "columnsTo": [
+        "modifier_option_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "nameExplicit": false,
+      "name": "fk_order_item_modifier_modifier_option_id_modifier_option_modifier_option_id_fk",
+      "entityType": "fks",
+      "table": "order_item_modifier"
+    },
+    {
+      "columns": [
+        "order_id"
+      ],
+      "tableTo": "customer_order",
+      "columnsTo": [
+        "order_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "nameExplicit": false,
+      "name": "fk_order_status_history_order_id_customer_order_order_id_fk",
+      "entityType": "fks",
+      "table": "order_status_history"
+    },
+    {
+      "columns": [
+        "status_id"
+      ],
+      "tableTo": "order_status",
+      "columnsTo": [
+        "status_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "nameExplicit": false,
+      "name": "fk_order_status_history_status_id_order_status_status_id_fk",
+      "entityType": "fks",
+      "table": "order_status_history"
+    },
+    {
+      "columns": [
+        "changed_by_staff_id"
+      ],
+      "tableTo": "staff",
+      "columnsTo": [
+        "staff_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "nameExplicit": false,
+      "name": "fk_order_status_history_changed_by_staff_id_staff_staff_id_fk",
+      "entityType": "fks",
+      "table": "order_status_history"
+    },
+    {
+      "columns": [
+        "staff_id"
+      ],
+      "tableTo": "staff",
+      "columnsTo": [
+        "staff_id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "nameExplicit": false,
+      "name": "fk_staff_authentication_staff_id_staff_staff_id_fk",
+      "entityType": "fks",
+      "table": "staff_authentication"
+    },
+    {
+      "columns": [
+        "customer_id"
+      ],
+      "nameExplicit": false,
+      "name": "customer_pk",
+      "table": "customer",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "customer_auth_id"
+      ],
+      "nameExplicit": false,
+      "name": "customer_authentication_pk",
+      "table": "customer_authentication",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "order_id"
+      ],
+      "nameExplicit": false,
+      "name": "customer_order_pk",
+      "table": "customer_order",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "category_id"
+      ],
+      "nameExplicit": false,
+      "name": "menu_category_pk",
+      "table": "menu_category",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "menu_item_id"
+      ],
+      "nameExplicit": false,
+      "name": "menu_item_pk",
+      "table": "menu_item",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "menu_item_modifier_group_id"
+      ],
+      "nameExplicit": false,
+      "name": "menu_item_modifier_group_pk",
+      "table": "menu_item_modifier_group",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "modifier_group_id"
+      ],
+      "nameExplicit": false,
+      "name": "modifier_group_pk",
+      "table": "modifier_group",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "modifier_option_id"
+      ],
+      "nameExplicit": false,
+      "name": "modifier_option_pk",
+      "table": "modifier_option",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "report_id"
+      ],
+      "nameExplicit": false,
+      "name": "order_activity_report_pk",
+      "table": "order_activity_report",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "order_item_id"
+      ],
+      "nameExplicit": false,
+      "name": "order_item_pk",
+      "table": "order_item",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "order_item_modifier_id"
+      ],
+      "nameExplicit": false,
+      "name": "order_item_modifier_pk",
+      "table": "order_item_modifier",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "status_id"
+      ],
+      "nameExplicit": false,
+      "name": "order_status_pk",
+      "table": "order_status",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "status_history_id"
+      ],
+      "nameExplicit": false,
+      "name": "order_status_history_pk",
+      "table": "order_status_history",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "staff_id"
+      ],
+      "nameExplicit": false,
+      "name": "staff_pk",
+      "table": "staff",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "staff_auth_id"
+      ],
+      "nameExplicit": false,
+      "name": "staff_authentication_pk",
+      "table": "staff_authentication",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "email"
+      ],
+      "nameExplicit": false,
+      "name": "customer_email_unique",
+      "entityType": "uniques",
+      "table": "customer"
+    },
+    {
+      "columns": [
+        "status_name"
+      ],
+      "nameExplicit": false,
+      "name": "order_status_status_name_unique",
+      "entityType": "uniques",
+      "table": "order_status"
+    },
+    {
+      "columns": [
+        "email"
+      ],
+      "nameExplicit": false,
+      "name": "staff_email_unique",
+      "entityType": "uniques",
+      "table": "staff"
+    },
+    {
+      "columns": [
+        "username"
+      ],
+      "nameExplicit": false,
+      "name": "staff_authentication_username_unique",
+      "entityType": "uniques",
+      "table": "staff_authentication"
+    }
+  ],
+  "renames": []
+}
