@@ -1,20 +1,145 @@
 <script lang="ts">
- import { initialMenu, initialOrders, type CafeOrder, type MenuItem } from '#lib/demo-data';
- let orders: CafeOrder[] = $state(initialOrders.map((order) => ({ ...order, items: [...order.items] })));
- let menu: MenuItem[] = $state(initialMenu.map((item) => ({ ...item })));
- let selectedId = $state<number | null>(null);
- let newName = $state(''); let newPrice = $state(''); let newCategory = $state('Food');
- const statuses: CafeOrder['status'][] = ['New', 'Preparing', 'Ready', 'Completed'];
- let selected = $derived(orders.find((order) => order.id === selectedId));
- function updateStatus(id: number, status: CafeOrder['status']) { orders = orders.map((order) => order.id === id ? { ...order, status } : order); }
- function addItem() { const price = Number(newPrice); if (!newName.trim() || !Number.isFinite(price) || price <= 0) return; menu = [...menu, { id: Date.now(), name: newName.trim(), category: newCategory, price, available: true }]; newName = ''; newPrice = ''; }
- function removeItem(id: number) { menu = menu.filter((item) => item.id !== id); }
+  import type { PageData } from './$types';
+
+  let { data }: { data: PageData } = $props();
+
+  let selectedId = $state<number | null>(null);
+  let statusFilter = $state('All');
+
+  let orders = $derived(data.orders ?? []);
+  let statuses = $derived(data.statuses ?? []);
+
+  let filteredOrders = $derived(
+    statusFilter === 'All'
+      ? orders
+      : orders.filter((order) => order.status === statusFilter)
+  );
+
+  let selected = $derived(
+    orders.find((order) => order.id === selectedId)
+  );
 </script>
-<svelte:head><title>Employee Dashboard | Heritage Café</title></svelte:head>
-<section class="page"><p class="eyebrow">EMPLOYEE WORKSPACE</p><h1>Order Management</h1><p class="notice">Demo mode — sample orders and menu changes only. Changes reset when the page reloads. Employee authentication and database integration are not yet connected.</p>
- <h2>Incoming Orders</h2><div class="orders">{#each orders as order (order.id)}<article><div class="top"><strong>Order #{order.id}</strong><span class="status">{order.status}</span></div><p>{order.customer} · Pickup {order.pickup}</p><p>{order.items.join(', ')}</p><div class="actions"><button onclick={() => selectedId = order.id}>View details</button><label>Update status <select aria-label={`Status for order ${order.id}`} value={order.status} onchange={(e) => updateStatus(order.id, e.currentTarget.value as CafeOrder['status'])}>{#each statuses as status}<option value={status}>{status}</option>{/each}</select></label></div></article>{/each}</div>
- {#if selected}<section class="details"><div class="top"><h3>Order #{selected.id} details</h3><button onclick={() => selectedId = null}>Close</button></div><p>Customer: {selected.customer}</p><p>Pickup: {selected.pickup}</p><p>Status: {selected.status}</p><strong>Items:</strong><ul>{#each selected.items as item}<li>{item}</li>{/each}</ul></section>{/if}
- <h2>Manage Menu</h2><div class="menu">{#each menu as item (item.id)}<div class="menuitem"><div><strong>{item.name}</strong><p>{item.category} · ${item.price.toFixed(2)}</p></div><label><input type="checkbox" checked={item.available} onchange={(e) => menu = menu.map((m) => m.id === item.id ? { ...m, available: e.currentTarget.checked } : m)} /> Available</label><button onclick={() => removeItem(item.id)}>Remove</button></div>{/each}</div>
- <form onsubmit={(e) => { e.preventDefault(); addItem(); }}><h3>Add a menu item</h3><input aria-label="Item name" placeholder="Item name" bind:value={newName} required /><select aria-label="Category" bind:value={newCategory}><option>Food</option><option>Drinks</option><option>Bakery</option></select><input aria-label="Price" placeholder="Price" type="number" min="0.01" step="0.01" bind:value={newPrice} required /><button type="submit">Add item</button></form>
- </section>
-<style>.page{max-width:1100px;margin:auto;padding:3rem 1.5rem}.eyebrow{font-size:.75rem;letter-spacing:.15em;font-weight:700;color:#84674e}h1{font-size:2.5rem;margin:.5rem 0}.notice{background:#fff0d4;padding:1rem;border-radius:8px;border:1px solid #e7ce9f}.orders{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:1rem}article,.details,.menu,form{background:#fff;border:1px solid #e5d8c9;border-radius:12px;padding:1.2rem;margin-bottom:1rem}.top,.actions,.menuitem{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}.status{background:#efe5d6;padding:.3rem .6rem;border-radius:20px}.actions{margin-top:1rem}button{background:#493426;color:white;border:0;padding:.6rem .9rem;border-radius:7px;cursor:pointer}select,input{padding:.55rem;border:1px solid #c8b7a6;border-radius:6px}h2{margin-top:2.5rem}.menuitem{border-bottom:1px solid #eee;padding:.6rem 0}.menuitem:last-child{border-bottom:0}.menuitem p{margin:.25rem 0;color:#74695f}form{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem}form h3{width:100%}</style>
+
+<svelte:head>
+  <title>Employee Dashboard | Heritage Café</title>
+</svelte:head>
+
+<section class="page">
+  <p class="eyebrow">EMPLOYEE WORKSPACE</p>
+  <div class="dashboard-header">
+    <h1>Order Management</h1>
+    <form method="POST" action="/employee/logout">
+      <button type="submit">Log out</button>
+    </form>
+  </div>
+
+  <p class="notice">
+    Select an incoming order to review its details and update its status.
+  </p>
+
+  <h2>Incoming Orders</h2>
+
+  <div class="queue-controls">
+    <label for="order-filter">Filter orders</label>
+
+    <select id="order-filter" bind:value={statusFilter}>
+      <option value="All">All Orders</option>
+      {#each statuses as status}
+        <option value={status.name}>{status.name}</option>
+      {/each}
+    </select>
+
+    <span>{filteredOrders.length} order(s)</span>
+  </div>
+
+  {#if filteredOrders.length === 0}
+    <p class="notice">No orders match this status.</p>
+  {/if}
+
+  <div class="orders">
+    {#each filteredOrders as order (order.id)}
+      <article>
+        <div class="top">
+          <strong>Order #{order.id}</strong>
+          <span class="status">{order.status}</span>
+        </div>
+
+        <p>{order.customer} · Pickup {order.pickup}</p>
+
+        <p>
+          {order.items.map((item) => `${item.quantity}x ${item.name}`).join(', ')}
+        </p>
+
+        <button onclick={() => selectedId = order.id}>
+          View details
+        </button>
+      </article>
+    {/each}
+  </div>
+
+  {#if selected}
+    <section class="details">
+      <div class="top">
+        <h3>Order #{selected.id} details</h3>
+        <button onclick={() => selectedId = null}>Close</button>
+      </div>
+
+      <p>Customer: {selected.customer}</p>
+      <p>Pickup: {selected.pickup}</p>
+      <p>Status: {selected.status}</p>
+
+      <form method="POST" action="?/updateStatus" class="queue-controls">
+        <input type="hidden" name="orderId" value={selected.id} />
+
+        <label for="new-status">Update status</label>
+        <select id="new-status" name="statusId" required>
+          {#each statuses as status}
+            <option value={status.id} selected={status.name === selected.status}>
+              {status.name}
+            </option>
+          {/each}
+        </select>
+
+        <button type="submit">Save status</button>
+      </form>
+
+      <strong>Items:</strong>
+      <ul>
+        {#each selected.items as item (item.id)}
+          <li>
+            {item.quantity}x {item.name}
+            {#if item.modifiers.length}
+              ({item.modifiers.join(', ')})
+            {/if}
+            {#if item.notes}
+              — {item.notes}
+            {/if}
+          </li>
+        {/each}
+      </ul>
+    </section>
+  {/if}
+</section>
+
+<style>
+  .page { max-width: 1100px; margin: auto; padding: 3rem 1.5rem; }
+  .eyebrow { font-size: .75rem; letter-spacing: .15em; font-weight: 700; color: #84674e; }
+  h1 { font-size: 2.5rem; margin: .5rem 0; }
+  h2 { margin-top: 2.5rem; }
+  .notice { background: #fff0d4; padding: 1rem; border-radius: 8px; border: 1px solid #e7ce9f; }
+  .queue-controls { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin: 1rem 0; }
+  .orders { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 1rem; }
+  article, .details { background: #fff; border: 1px solid #e5d8c9; border-radius: 12px; padding: 1.2rem; margin-bottom: 1rem; }
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .status { background: #efe5d6; padding: .3rem .6rem; border-radius: 20px; }
+  button { background: #493426; color: white; border: 0; padding: .6rem .9rem; border-radius: 7px; cursor: pointer; }
+  select { padding: .55rem; border: 1px solid #c8b7a6; border-radius: 6px; }
+
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+</style>
