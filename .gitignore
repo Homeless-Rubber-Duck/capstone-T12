@@ -1,5 +1,4 @@
 
 node_modules/
 .svelte-kit/
-/local.db
-/local.db-*
+package-lock.json
