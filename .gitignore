@@ -1,0 +1,15 @@
+# Installed dependencies
+node_modules/
+
+# Generated files
+.svelte-kit/
+build/
+
+# Local environment settings
+.env
+.env.*
+!.env.example
+
+# Local menu database
+/local.db
+/local.db-*
