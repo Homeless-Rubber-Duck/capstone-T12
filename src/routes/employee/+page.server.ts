@@ -1,7 +1,7 @@
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { getEmployeeSession } from '$lib/server/employeeAuth';
-import { loadEmployeeQueue } from '$lib/server/employeeQueue';
+import { getEmployeeSession } from '../../lib/server/employeeAuth';
+import { loadEmployeeQueue } from '../../lib/server/employeeQueue';
 
 export const load: PageServerLoad = ({ cookies }) => {
   const employee = getEmployeeSession(
@@ -20,7 +20,7 @@ export const load: PageServerLoad = ({ cookies }) => {
 
 import { fail } from '@sveltejs/kit';
 import type { Actions } from './$types';
-import { changeEmployeeOrderStatus } from '$lib/server/employeeOrderActions';
+import { changeEmployeeOrderStatus } from '../../lib/server/employeeOrderActions';
 
 export const actions: Actions = {
   updateStatus: async ({ request, cookies }) => {

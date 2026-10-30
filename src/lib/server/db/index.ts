@@ -7,4 +7,4 @@ if (!DATABASE_URL) throw new Error('DATABASE_URL is not set');
 
 export const client = new DatabaseSync(DATABASE_URL);
 
-export const db = drizzle(client, { schema });
+export const db = drizzle({ client });

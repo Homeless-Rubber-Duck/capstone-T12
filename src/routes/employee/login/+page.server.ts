@@ -4,7 +4,7 @@ import {
   authenticateEmployee,
   createEmployeeSession,
   getEmployeeSession
-} from '$lib/server/employeeAuth';
+} from '../../../lib/server/employeeAuth';
 
 const COOKIE_NAME = 'heritage_employee_session';
 
