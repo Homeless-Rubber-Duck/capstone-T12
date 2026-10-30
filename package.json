@@ -22,7 +22,7 @@
 		"@types/node": "^24",
 		"better-sqlite3": "^13.0.3",
 		"drizzle-kit": "^0.31.10",
-		"drizzle-orm": "^0.45.2",
+		"drizzle-orm": "^1.0.0-rc.5",
 		"svelte": "^5.57.1",
 		"svelte-check": "^4.6.0",
 		"typescript": "^6.0.3",
@@ -31,5 +31,8 @@
 	"imports": {
 		"#lib": "./src/lib/index.js",
 		"#lib/*": "./src/lib/*"
+	},
+	"dependencies": {
+		"bootstrap": "^5.3.8"
 	}
 }

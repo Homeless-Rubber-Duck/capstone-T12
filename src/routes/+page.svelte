@@ -1,24 +1,4 @@
-<script lang="ts">
-    import type { PageData } from './$types';
-
-    // Receives menu items from the server
-    let { data }: { data: PageData } = $props();
-</script>
-
-<h1>Heritage Cafe Menu</h1>
-
-<!-- Loops through each menu item -->
-{#each data.menuItems as item}
-    <div>
-        <h2>{item.name}</h2>
-        <p>{item.description}</p>
-        <p>${item.price}</p>
-
-        <!-- Checks if the item is available -->
-        {#if item.isAvailable}
-            <p>Available</p>
-        {:else}
-            <p>Not Available</p>
-        {/if}
-    </div>
-{/each}
+<svelte:head><title>Heritage Café | Home</title><meta name="description" content="Heritage Café pickup ordering" /></svelte:head>
+<section class="hero"><p class="eyebrow">WELCOME TO HERITAGE CAFÉ</p><h1>Good coffee. Good food. Made for your day.</h1><p>Explore our menu and get ready for easy pickup ordering.</p><a class="button" href="/menu">View the menu →</a></section>
+<section class="intro"><h2>A simpler way to order</h2><p>Browse our offerings online. Our team is building a pickup ordering experience that helps keep every order organized.</p></section>
+<style>.hero{padding:6rem 1.5rem;text-align:center;background:#f0e3d0}.hero h1{font-size:clamp(2.5rem,6vw,4.5rem);max-width:800px;margin:1rem auto;color:#38271e}.hero p{font-size:1.1rem}.eyebrow{font-weight:700;letter-spacing:.15em;font-size:.8rem!important}.button{display:inline-block;margin-top:1.5rem;padding:.9rem 1.5rem;background:#493426;color:white;border-radius:8px;text-decoration:none}.intro{max-width:760px;margin:4rem auto;padding:0 1.5rem;text-align:center}</style>
