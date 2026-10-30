@@ -1,4 +1,15 @@
-
+# Installed dependencies
 node_modules/
+
+# Generated files
 .svelte-kit/
-package-lock.json
+build/
+
+# Local environment settings
+.env
+.env.*
+!.env.example
+
+# Local menu database
+/local.db
+/local.db-*
