@@ -1,4 +1,60 @@
-<script lang="ts">import { initialMenu } from '../../lib/demo-data.ts'; const menu = initialMenu;</script>
-<svelte:head><title>Menu | Heritage Café</title></svelte:head>
-<section class="page"><p class="eyebrow">HERITAGE CAFÉ</p><h1>Our Menu</h1><p>Explore our offerings. Sample items and prices are for demonstration only.</p><div class="grid">{#each menu as item (item.id)}<article><span>{item.category}</span><h2>{item.name}</h2><p class="price">${item.price.toFixed(2)}</p><p class:unavailable={!item.available}>{item.available ? 'Available' : 'Currently unavailable'}</p></article>{/each}</div><p class="note">Online pickup checkout is coming soon. No orders can be placed on this demo page yet.</p></section>
-<style>.page{max-width:1100px;margin:auto;padding:3rem 1.5rem}.eyebrow{font-size:.75rem;letter-spacing:.15em;font-weight:700;color:#84674e}h1{font-size:2.7rem;margin:.4rem 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1.2rem;margin-top:2rem}article{background:#fff;border:1px solid #e5d8c9;border-radius:12px;padding:1.5rem}article span{font-size:.8rem;color:#85674b}article h2{font-size:1.3rem}.price{font-weight:700}.unavailable{color:#a44b3e}.note{margin-top:2rem;color:#665c52}</style>
+<script lang="ts">
+	import { onMount } from 'svelte';
+	import type { PageProps } from './$types';
+	import { cart, initCart, addToCart, cartCount, cartTotal, money } from '../../lib/cart.svelte';
+
+	let { data }: PageProps = $props();
+
+	onMount(initCart);
+</script>
+
+<svelte:head><title>Order | Heritage Cafe</title></svelte:head>
+
+<main>
+	<h1>Order for Pickup</h1>
+
+	{#if data.categories.length === 0}
+		<p class="empty">The menu isn't available right now.</p>
+	{/if}
+
+	{#each data.categories as category (category.categoryId)}
+		<section>
+			<h2>{category.categoryName}</h2>
+			<ul>
+				{#each category.items as item (item.menuItemId)}
+					<li>
+						<div>
+							<strong>{item.name}</strong>
+							{#if item.description}<p>{item.description}</p>{/if}
+						</div>
+						<span class="price">{money(item.price)}</span>
+						<button
+							onclick={() =>
+								addToCart({ menuItemId: item.menuItemId, name: item.name, price: item.price })}
+						>
+							Add
+						</button>
+					</li>
+				{/each}
+			</ul>
+		</section>
+	{/each}
+
+	{#if cart.lines.length > 0}
+		<a class="cart-bar" href="/checkout">
+			View order ({cartCount()} {cartCount() === 1 ? 'item' : 'items'}) · {money(cartTotal())}
+		</a>
+	{/if}
+</main>
+
+<style>
+	main { max-width: 640px; margin: 0 auto; padding: 16px 16px 96px; font-family: system-ui, sans-serif; }
+	h2 { margin-top: 28px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+	ul { list-style: none; padding: 0; margin: 0; }
+	li { display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+	li p { margin: 4px 0 0; color: #666; font-size: 0.9rem; }
+	.price { font-variant-numeric: tabular-nums; }
+	button { padding: 8px 14px; border: 0; border-radius: 6px; background: #3b2a20; color: white; cursor: pointer; }
+	.cart-bar { position: fixed; left: 16px; right: 16px; bottom: 16px; max-width: 608px; margin: 0 auto; padding: 14px; border-radius: 8px; background: #3b2a20; color: white; text-align: center; text-decoration: none; font-weight: 600; }
+	.empty { color: #666; }
+</style>
