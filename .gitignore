@@ -1,4 +1,6 @@
 
 node_modules/
 .svelte-kit/
+local-data/
+.env
 package-lock.json
