@@ -30,5 +30,8 @@
 	"imports": {
 		"#lib": "./src/lib/index.js",
 		"#lib/*": "./src/lib/*"
+	},
+	"dependencies": {
+		"bootstrap": "^5.3.8"
 	}
 }
