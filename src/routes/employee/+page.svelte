@@ -1,19 +1,43 @@
 <script lang="ts">
   import type { PageData } from './$types';
-
+  import { onMount } from 'svelte';
   let { data }: { data: PageData } = $props();
 
   let selectedId = $state<number | null>(null);
   let statusFilter = $state('All');
+  let timeFilter = $state('Upcoming');
+  let currentTime = $state(Date.now());
+
+  onMount(() => {
+    currentTime = Date.now();
+
+    const timer = setInterval(() => {
+      currentTime = Date.now();
+    }, 60000);
+
+    return () => clearInterval(timer);
+});
 
   let orders = $derived(data.orders ?? []);
   let statuses = $derived(data.statuses ?? []);
 
-  let filteredOrders = $derived(
-    statusFilter === 'All'
-      ? orders
-      : orders.filter((order) => order.status === statusFilter)
-  );
+  let filteredOrders = $derived.by(() => {
+  const now = currentTime;
+  const next30Minutes = now + 30 * 60 * 1000;
+
+  return orders.filter((order) => {
+    const matchesStatus =
+      statusFilter === 'All' || order.status === statusFilter;
+
+    const pickupTime = new Date(order.pickup.replace(' ', 'T')).getTime();
+
+    const matchesTime =
+      timeFilter === 'All' ||
+      (pickupTime >= now && pickupTime <= next30Minutes);
+
+    return matchesStatus && matchesTime;
+  });
+});
 
   let selected = $derived(
     orders.find((order) => order.id === selectedId)
@@ -48,12 +72,17 @@
         <option value={status.name}>{status.name}</option>
       {/each}
     </select>
+    <label for="time-filter">Pickup time</label>
 
+    <select id="time-filter" bind:value={timeFilter}>
+      <option value="Upcoming">Next 30 Minutes</option>
+      <option value="All">All Pickup Times</option>
+    </select>
     <span>{filteredOrders.length} order(s)</span>
   </div>
 
   {#if filteredOrders.length === 0}
-    <p class="notice">No orders match this status.</p>
+    <p class="notice">No orders match the selected filters.</p>
   {/if}
 
   <div class="orders">
