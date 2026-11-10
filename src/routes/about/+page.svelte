@@ -14,12 +14,14 @@
     {
       name: 'Aeran Kang',
       role: 'Owner',
-      line: 'Her favorite part is when the regulars walk in.'
+      line: 'Her favorite part is when the regulars walk in.',
+      photo: ''
     },
     {
       name: 'Jonathan Choe',
       role: 'Manager',
-      line: 'He’s helped out since day one and loves the café’s calm, easygoing vibe.'
+      line: 'He’s helped out since day one and loves the café’s calm, easygoing vibe.',
+      photo: '/images/about/jonathan-choe.jpg'
     }
   ];
 </script>
@@ -65,6 +67,11 @@
   <div class="cards">
     {#each family as person}
       <article class="card">
+        {#if person.photo}
+          <img class="portrait" src={person.photo} alt={`${person.name}, ${person.role} of Heritage Café`} width="600" height="600" loading="lazy" />
+        {:else}
+          <div class="portrait initials" aria-hidden="true">{person.name.split(' ').map((n) => n[0]).join('')}</div>
+        {/if}
         <h3>{person.name}</h3>
         <p class="role">{person.role}</p>
         <p>{person.line}</p>
@@ -91,21 +98,9 @@
   </ul>
 </section>
 
-<section class="visit" aria-labelledby="visit-heading">
-  <h2 id="visit-heading">Visit Us</h2>
-  <ul class="hours">
-    <li><span>Monday – Saturday</span><span>8:00 AM – 8:00 PM</span></li>
-    <li><span>Sunday</span><span>8:30 AM – 8:00 PM</span></li>
-  </ul>
-
-  <div class="actions">
-    <a class="button primary" href="/menu">View the menu <span aria-hidden="true">→</span></a>
-    <a class="button secondary" href="/contact">Contact us</a>
-  </div>
-</section>
 
 <style>
-  .hero, .story, .family, .wall, .visit {
+  .hero, .story, .family, .wall {
     --ink: #14110c;
     --cream: #d4d0ce;
     --stone: #c8c0bb;
@@ -216,9 +211,32 @@
   }
 
   .card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     padding: 2rem 1.5rem;
     border: 1px solid var(--stone);
     border-radius: 5px;
+  }
+
+  .portrait {
+    display: block;
+    width: 160px;
+    height: 160px;
+    margin: 0 auto 1.2rem;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--stone);
+  }
+
+  .initials {
+    display: grid;
+    place-items: center;
+    background: rgba(212, 208, 206, 0.08);
+    font-family: 'Dancing Script', cursive;
+    font-size: 3.2rem;
+    font-weight: 700;
+    color: var(--cream);
   }
 
   .card h3 {
@@ -274,65 +292,9 @@
     object-fit: cover;
     border-radius: 5px;
   }
-
-  /* Visit */
-  .visit {
-    background: var(--ink);
-    color: var(--cream);
-    padding: clamp(3rem, 7vw, 5rem) 1.5rem;
-    text-align: center;
-  }
-
-  .hours {
-    list-style: none;
-    padding: 0;
-    margin: 0 auto 2rem;
-    max-width: 420px;
-  }
-
-  .hours li {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.7rem 0;
-    border-bottom: 1px solid rgba(212, 208, 206, 0.3);
-  }
-
-  .actions {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 1rem;
-  }
-
-  .button {
-    display: inline-flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem 1.7rem;
-    border: 1px solid var(--cream);
-    border-radius: 5px;
-    font-weight: 700;
-    text-decoration: none;
-    transition: background 0.2s, color 0.2s;
-  }
-
-  .primary { background: var(--cream); color: var(--ink); }
-  .primary:hover { background: var(--stone); }
-  .secondary { color: var(--cream); }
-  .secondary:hover { background: rgba(212, 208, 206, 0.15); }
-
-  a:focus-visible {
-    outline: 3px solid currentColor;
-    outline-offset: 4px;
-  }
-
   @media (max-width: 720px) {
     .cards { grid-template-columns: 1fr; }
     .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem; }
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .button { transition: none; }
-  }
 </style>
