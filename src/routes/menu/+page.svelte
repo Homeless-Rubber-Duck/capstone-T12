@@ -223,14 +223,19 @@
     }
 
     @media (max-width: 900px) {
+        main {
+            width: 100%;
+            padding-left: 12px;
+            padding-right: 12px;
+        }
         .menu-category {
             max-width: 100%;
         }
 
         .cart-preview {
-    		left: 16px;
-    		right: 16px;
-    		bottom: calc(var(--footer-summary-height, 120px) + 8px);
+    		left: 0;
+    		right: 0;
+    		bottom: 0;
     		width: auto;
     		max-height: 55vh;
     		padding: 0;
