@@ -13,14 +13,29 @@
 
 <svelte:head><title>Review Order | Heritage Cafe</title></svelte:head>
 
-<main>
-	<a href="/menu">← Back to menu</a>
-	<h1>Review your order</h1>
+	<div class="checkout-page">
+		{#if cart.lines.length === 0}
+			<section class="checkout-empty" aria-labelledby="checkout-empty-title">
+				<img
+					class="checkout-empty-logo"
+					src="/images/darkgray-cup-logo.png"
+					alt=""
+					width="553"
+					height="784"
+				/>
 
-	{#if cart.lines.length === 0}
-		<p>Your order is empty. <a href="/menu">Add something from the menu.</a></p>
-	{:else}
-		<ul>
+				<h1 id="checkout-empty-title">Your cart is empty</h1>
+				<p>Find something you like on the menu and add it to your cart.</p>
+
+				<a class="checkout-menu-button" href="/menu">
+					Browse the Menu <span aria-hidden="true">→</span>
+				</a>
+			</section>
+		{:else}
+			<a href="/menu">← Back to menu</a>
+			<h1>Review your order</h1>
+
+			<ul>
 			{#each cart.lines as line (line.menuItemId)}
 				<li>
 					<div class="row">
@@ -90,10 +105,9 @@
 			<button disabled={submitting}>{submitting ? 'Placing order…' : 'Place order'}</button>
 		</form>
 	{/if}
-</main>
+</div>
 
 <style>
-	main { max-width: 640px; margin: 0 auto; padding: 16px; font-family: system-ui, sans-serif; }
 	ul { list-style: none; padding: 0; }
 	li { padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
 	.row { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 6px; }
@@ -111,4 +125,63 @@
 	button { padding: 12px 18px; border: 0; border-radius: 6px; background: #3b2a20; color: white; cursor: pointer; width: 100%; font-size: 1rem; }
 	button:disabled { opacity: 0.6; }
 	.link { background: none; color: #b00020; width: auto; padding: 0; font-size: 0.9rem; }
+
+	.checkout-page {
+		max-width: 640px;
+		margin: 0 auto;
+		padding: 16px;
+		font-family: system-ui, sans-serif;
+	}
+
+	.checkout-empty {
+		display: grid;
+		min-block-size: clamp(22rem, 48vh, 32rem);
+		align-content: center;
+		justify-items: center;
+		gap: 1rem;
+		padding: 2rem 1rem;
+		color: #14110c;
+		text-align: center;
+	}
+
+	.checkout-empty-logo {
+		width: auto;
+		height: 3.5rem;
+	}
+
+	.checkout-empty h1 {
+		margin: 0;
+		font-family: 'Dancing Script', cursive;
+		font-size: clamp(2.5rem, 6vw, 4rem);
+		font-weight: 700;
+	}
+
+	.checkout-empty p {
+		max-width: 34ch;
+		margin: 0;
+		line-height: 1.6;
+	}
+
+	.checkout-menu-button {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.65rem;
+		min-height: 44px;
+		padding: 0.75rem 1.25rem;
+		border-radius: 0.375rem;
+		background-color: #14110c;
+		color: #d4d0ce;
+		font-weight: 700;
+		text-decoration: none;
+	}
+
+	.checkout-menu-button:hover {
+		background-color: #322820;
+		color: #d4d0ce;
+	}
+
+	.checkout-menu-button:focus-visible {
+		outline: 2px solid #14110c;
+		outline-offset: 4px;
+	}
 </style>
