@@ -1,28 +1,29 @@
 <script lang="ts">
+  import 'bootstrap/dist/css/bootstrap.min.css';
+  import '../lib/styles.css';
+
+  import { onMount } from 'svelte';
   import favicon from '#lib/assets/favicon.svg';
+  import { initCart } from '../lib/cart.svelte';
+  import SiteHeader from '../lib/components/SiteHeader.svelte';
+  import SiteFooter from '../lib/components/SiteFooter.svelte';
 
   let { children } = $props();
+
+  onMount(initCart);
 </script>
 
 <svelte:head>
   <link rel="icon" href={favicon} />
 </svelte:head>
 
-<header>
-  <a class="brand" href="/">Heritage Café</a>
-
-  <nav aria-label="Main navigation">
-    <a href="/">Home</a>
-    <a href="/menu">Menu</a>
-    <a href="/employee/login">Employee</a>
-  </nav>
-</header>
+<SiteHeader />
 
 <main>
   {@render children()}
 </main>
 
-<footer>Heritage Café · Team 12 Capstone Project</footer>
+<SiteFooter />
 
 <style>
   @font-face {
@@ -50,54 +51,7 @@
     font: inherit;
   }
 
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-    padding: 1.1rem max(1.5rem, calc((100vw - 1100px) / 2));
-    background: #14110c;
-    border-bottom: 1px solid #c8c0bb;
-  }
-
-  .brand {
-    font-family: 'Dancing Script', cursive;
-    font-size: 2rem;
-    font-weight: 700;
-    color: #d4d0ce;
-    text-decoration: none;
-  }
-
-  nav {
-    display: flex;
-    gap: 1.4rem;
-  }
-
-  nav a {
-    color: #d4d0ce;
-    text-decoration: none;
-  }
-
-  nav a:hover {
-    text-decoration: underline;
-    text-underline-offset: 6px;
-  }
-
-  header a:focus-visible {
-    outline: 2px solid #d4d0ce;
-    outline-offset: 6px;
-  }
-
   main {
     min-height: 75vh;
-  }
-
-  footer {
-    text-align: center;
-    padding: 2rem;
-    background: #c8c0bb;
-    color: #14110c;
-    border-top: 1px solid #b7aea7;
   }
 </style>
