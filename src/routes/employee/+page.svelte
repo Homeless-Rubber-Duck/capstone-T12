@@ -52,6 +52,9 @@
   <p class="eyebrow">EMPLOYEE WORKSPACE</p>
   <div class="dashboard-header">
     <h1>Order Management</h1>
+    {#if data.employee.role === 'admin'}
+      <a class="admin-link" href="/employee/admin">Admin Dashboard</a>
+    {/if}
     <form method="POST" action="/employee/logout">
       <button type="submit">Log out</button>
     </form>
@@ -170,5 +173,19 @@
     align-items: center;
     gap: 1rem;
     flex-wrap: wrap;
+  }
+
+  .admin-link {
+    display: inline-block;
+    background: #65452f;
+    color: white;
+    padding: 0.6rem 0.9rem;
+    border-radius: 7px;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .admin-link:hover {
+    background: #493426;
   }
 </style>
