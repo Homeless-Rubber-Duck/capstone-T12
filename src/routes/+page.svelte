@@ -184,23 +184,49 @@
   </div>
 </section>
 
-<section class="intro" aria-labelledby="order-heading">
+<!-- gallery of the cafe's community wall -->
+<section class="community-wall" aria-labelledby="community-wall-heading">
   <p class="eyebrow">YOUR NEXT CAFÉ MOMENT</p>
-
-  <h2 id="order-heading">A simpler way to order</h2>
+  <h2 id="community-wall-heading">Our Community Wall</h2>
 
   <p>
-    Take a look at our menu and find something to brighten your
-    day — from your usual coffee to a new favorite.
+    A little corner of Heritage Café, filled with drawings and notes from
+    the people who stop by.
   </p>
 
-  <a class="menu-link" href="/menu">
-    Explore the menu
-    <span aria-hidden="true">→</span>
-  </a>
+  <div class="community-gallery">
+    <img
+      src="/images/community-wall/community-wall-1.jpg"
+      alt=""
+      loading="lazy"
+    />
+    <img
+      src="/images/community-wall/community-wall-2.jpg"
+      alt=""
+      loading="lazy"
+    />
+    <img
+      src="/images/community-wall/community-wall-3.jpg"
+      alt=""
+      loading="lazy"
+    />
+    <img
+      src="/images/community-wall/community-wall-4.jpg"
+      alt=""
+      loading="lazy"
+    />
+    <img
+      src="/images/community-wall/community-wall-5.jpg"
+      alt=""
+      loading="lazy"
+    />
+    <img
+      src="/images/community-wall/community-wall-6.jpg"
+      alt=""
+      loading="lazy"
+    />
+  </div>
 </section>
-
-<!-- I will add on the community gallery images functionality here after my meeting with them -->
 
 
 <!-- homepage styling -->
@@ -454,4 +480,47 @@
       transition: none;
     }
   }
+
+.community-wall {
+  padding: clamp(3rem, 7vw, 5rem) 1.5rem;
+  background: #fffaf4;
+  color: #14110c;
+  text-align: center;
+}
+
+.community-wall h2 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(2.6rem, 5vw, 3.7rem);
+}
+
+.community-wall p {
+  max-width: 36rem;
+  margin: 0 auto 2rem;
+  line-height: 1.7;
+}
+
+.community-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.community-gallery img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  background: #eae2da;
+  border-radius: 0.5rem;
+}
+
+@media (max-width: 48rem) {
+  .community-gallery {
+    grid-template-columns: 1fr;
+    max-width: 32rem;
+  }
+}
+
 </style>
