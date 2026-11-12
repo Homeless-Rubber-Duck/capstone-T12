@@ -195,7 +195,7 @@
   </p>
 
   <a class="menu-link" href="/menu">
-    Browse & Order
+    Explore the menu
     <span aria-hidden="true">→</span>
   </a>
 </section>
