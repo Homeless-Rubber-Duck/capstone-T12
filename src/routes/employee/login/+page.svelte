@@ -11,35 +11,47 @@
 
 <main class="login-container">
   <section class="login-card">
-    <h1>Heritage Café</h1>
-    <h2>Employee Login</h2>
-    <p>Sign in to manage incoming orders.</p>
+    <div class="brand-mark">HC</div>
+
+    <div class="heading">
+      <span class="eyebrow">HERITAGE CAFÉ · STAFF PORTAL</span>
+      <h1>Welcome Back</h1>
+      <p>Sign in to access your employee dashboard.</p>
+    </div>
 
     <form method="POST" use:enhance>
-      <label for="username">Username</label>
-      <input
-        id="username"
-        type="text"
-        name="username"
-        autocomplete="username"
-        required
-      />
+      <div class="field">
+        <label for="username">Username</label>
+        <input
+          id="username"
+          type="text"
+          name="username"
+          placeholder="Enter your username"
+          autocomplete="username"
+          required
+        />
+      </div>
 
-      <label for="password">Password</label>
-      <input
-        id="password"
-        type="password"
-        name="password"
-        autocomplete="current-password"
-        required
-      />
+      <div class="field">
+        <label for="password">Password</label>
+        <input
+          id="password"
+          type="password"
+          name="password"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+          required
+        />
+      </div>
 
       {#if form?.error}
         <p class="error" role="alert">{form.error}</p>
       {/if}
 
-      <button type="submit">Sign In</button>
+      <button type="submit">Sign In <span aria-hidden="true">→</span></button>
     </form>
+
+    <p class="footer-note">Employee access only</p>
   </section>
 </main>
 
@@ -49,53 +61,148 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
-    background: #f8f5ef;
+    padding: 3rem 1.25rem;
+    background:
+      radial-gradient(circle at 15% 20%, #e9d8c1 0, transparent 35%),
+      radial-gradient(circle at 85% 80%, #e7d6c4 0, transparent 35%),
+      #f8f5ef;
   }
 
   .login-card {
     width: 100%;
-    max-width: 420px;
-    padding: 2.5rem;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px #00000012;
+    max-width: 440px;
+    padding: 2.75rem;
+    background: #fffefa;
+    border: 1px solid #eee3d6;
+    border-radius: 18px;
+    box-shadow: 0 18px 50px #4b332618;
   }
 
-  h1, h2 {
+  .brand-mark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    height: 54px;
+    margin: 0 auto 1.5rem;
+    border-radius: 16px;
+    background: #65452f;
+    color: #fff;
+    font-weight: 800;
+    font-size: 1.15rem;
+    letter-spacing: -0.04em;
+  }
+
+  .heading {
     text-align: center;
-    color: #4b3326;
   }
 
-  h2 { margin-bottom: 0.5rem; }
-  p { text-align: center; color: #666; }
+  .eyebrow {
+    color: #96765c;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+  }
+
+  h1 {
+    margin: 0.6rem 0 0.5rem;
+    color: #3e291e;
+    font-size: clamp(1.8rem, 4vw, 2.2rem);
+    font-weight: 750;
+    letter-spacing: -0.04em;
+  }
+
+  .heading p {
+    margin: 0;
+    color: #786d66;
+    font-size: 0.92rem;
+  }
 
   form {
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
-    margin-top: 1.5rem;
+    gap: 1.25rem;
+    margin-top: 2rem;
   }
 
-  label { font-weight: 600; }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  label {
+    color: #4b3326;
+    font-size: 0.9rem;
+    font-weight: 650;
+  }
 
   input {
-    padding: 0.85rem;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.95rem 1rem;
+    border: 1px solid #ded5cb;
+    border-radius: 9px;
+    background: white;
+    color: #35271f;
+    font: inherit;
+    font-size: 0.95rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  input::placeholder {
+    color: #a49b94;
+  }
+
+  input:focus {
+    outline: none;
+    border-color: #806047;
+    box-shadow: 0 0 0 3px #80604720;
   }
 
   button {
-    margin-top: 1rem;
-    padding: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 0.35rem;
+    padding: 1rem;
     border: none;
-    border-radius: 6px;
+    border-radius: 9px;
     background: #65452f;
     color: white;
-    font-size: 1rem;
+    font: inherit;
+    font-weight: 650;
     cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
   }
 
-  .error { color: #b42318; }
+  button:hover {
+    background: #4b3326;
+    transform: translateY(-1px);
+  }
+
+  button:focus-visible {
+    outline: 3px solid #b9906e;
+    outline-offset: 3px;
+  }
+
+  .error {
+    margin: 0;
+    color: #b42318;
+    font-size: 0.9rem;
+  }
+
+  .footer-note {
+    margin: 1.75rem 0 0;
+    text-align: center;
+    color: #a0958d;
+    font-size: 0.78rem;
+  }
+
+  @media (max-width: 480px) {
+    .login-card {
+      padding: 2rem 1.5rem;
+    }
+  }
 </style>
