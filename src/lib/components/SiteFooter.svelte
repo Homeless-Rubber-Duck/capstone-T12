@@ -3,7 +3,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { site } from '../index';
-  import Brand from './Brand.svelte';
 
   let details: HTMLDivElement;
   let summary: HTMLDivElement;
@@ -38,50 +37,23 @@
   });
 </script>
 
-<footer class="site-footer border-top" bind:this={footer}>
+<footer class="site-footer" bind:this={footer}>
   <!-- Compact row visible while scrolling. -->
   <div class="footer-summary" bind:this={summary}>
-    <div
-      class="container d-flex flex-wrap align-items-center justify-content-between gap-3 py-3"
-    >
-      <Brand />
-
-      <address class="mb-0 small">
+    <div class="container py-2">
+      <address class="mb-0 small text-center">
         {site.address}
       </address>
-
-      <a
-        class="facebook-link d-inline-flex align-items-center gap-2"
-        href={site.facebook}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          fill="currentColor"
-          viewBox="0 0 16 16"
-          aria-hidden="true"
-        >
-          <path
-            d="M16 8.049C16 3.603 12.418 0 8 0S0 3.603 0 8.049c0 4.017 2.926 7.347 6.75 7.951v-5.625H4.719V8.049H6.75V6.276c0-2.017 1.194-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.994 0-1.304.621-1.304 1.258v1.509h2.219l-.355 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951"
-          />
-        </svg>
-
-        Facebook
-        <span class="visually-hidden"> (opens in a new tab)</span>
-      </a>
     </div>
   </div>
 
   <!-- Business hours and contact details revealed at the page bottom. -->
-  <div class="footer-details border-top" bind:this={details}>
+  <div class="footer-details" bind:this={details}>
     <div class="container py-4">
       <div class="row g-4">
         <section class="col-md-6" aria-labelledby="hours-heading">
           <h2 id="hours-heading" class="h6 fw-bold">
-            Business hours
+            Business Hours
           </h2>
 
           <dl class="mb-0 small">
@@ -96,7 +68,7 @@
 
         <section class="col-md-6" aria-labelledby="contact-heading">
           <h2 id="contact-heading" class="h6 fw-bold">
-            Contact information
+            Contact Information
           </h2>
 
           <p class="small mb-1">
@@ -106,18 +78,74 @@
             </a>
           </p>
 
-          <p class="small mb-0">
+          <p class="small mb-1">
             Email:
             <a href={`mailto:${site.email}`}>
               {site.email}
             </a>
           </p>
+
+          <p class="small mb-0">
+            <a
+              class="footer-facebook"
+              href={site.facebook}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span class="footer-facebook-icon" aria-hidden="true"></span>
+              <span>Facebook<span class="visually-hidden"> (opens in a new tab)</span></span>
+            </a>
+          </p>
+
         </section>
       </div>
 
-      <p class="small text-body-secondary mt-4 mb-0">
+      <p class="small mt-3 pt-3 mb-0">
         © {new Date().getFullYear()} {site.name}
       </p>
     </div>
   </div>
 </footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid #b7aea7;
+  }
+
+  .site-footer,
+  .footer-summary {
+    background-color: #c8c0bb;
+    color: #14110c;
+  }
+
+  .footer-details {
+    background-color: #14110c;
+    color: #d4d0ce;
+    border-top: 1px solid #b7aea7;
+  }
+
+  .footer-details a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .footer-facebook {
+    display: flex;
+    width: fit-content;
+    align-items: center;
+    gap: 0.5rem;
+    font: inherit;
+  }
+
+  .footer-facebook-icon {
+    flex: 0 0 1em;
+    height: 1em;
+    background-color: currentColor;
+    mask: url('/images/facebook-dark.png') center / contain no-repeat;
+  }
+
+  .footer-facebook:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+</style>

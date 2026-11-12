@@ -10,8 +10,8 @@ export const site = {
     email: "heritagecafeo@gmail.com",
     facebook: "https://www.facebook.com/heritagecafeFTX/",
     hours: [
-        {days: "Monday-Saturday", time: "8:00am - 8:00pm"},
-        {days: "Sunday", time: "8:30am - 8:00pm"}
+        {days: "Monday-Saturday:", time: "8:00am - 8:00pm"},
+        {days: "Sunday:", time: "8:30am - 8:00pm"}
     ]
 };
 
@@ -20,6 +20,5 @@ export const navigation = [
     { label: "Home", href: "/"},
     { label: "About Us", href: "/about"},
     { label: "Menu", href: "/menu"},
-    { label: "Order Here", href: "/order"},
     { label: "Contact Us", href: "/contact"},
 ];
