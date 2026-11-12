@@ -184,25 +184,9 @@
   </div>
 </section>
 
-<section class="intro" aria-labelledby="order-heading">
-  <p class="eyebrow">YOUR NEXT CAFÉ MOMENT</p>
-
-  <h2 id="order-heading">A simpler way to order</h2>
-
-  <p>
-    Take a look at our menu and find something to brighten your
-    day — from your usual coffee to a new favorite.
-  </p>
-
-  <a class="menu-link" href="/menu">
-    Browse & Order
-    <span aria-hidden="true">→</span>
-  </a>
-</section>
-
-
 <!-- gallery of the cafe's community wall -->
 <section class="community-wall" aria-labelledby="community-wall-heading">
+  <p class="eyebrow">YOUR NEXT CAFÉ MOMENT</p>
   <h2 id="community-wall-heading">Our Community Wall</h2>
 
   <p>
