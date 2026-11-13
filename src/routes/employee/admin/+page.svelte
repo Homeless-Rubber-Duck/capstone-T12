@@ -7,7 +7,12 @@
 <svelte:head><title>Employee Administration | Heritage Café</title></svelte:head>
 <main class="admin">
   <nav><a href="/employee">← Order Management</a> · <strong>Employee Administration</strong></nav>
-  <h1>Manage Employee Accounts</h1>
+  <h1>Admin Dashboard</h1>
+  <div class="admin-links">
+    <a href="/employee/admin/menu">Manage Café Menu</a>
+    <a href="/employee/admin/history">Order History &amp; Reporting</a>
+  </div>
+  <h2>Manage Employee Accounts</h2>
   <p>Only administrators can create, edit, reset passwords, and remove employee accounts.</p>
   {#if form?.error}<p class="error" role="alert">{form.error}</p>{/if}
   {#if form?.success}<p class="success" role="status">{form.success}</p>{/if}
@@ -53,6 +58,8 @@
 </main>
 <style>
   .admin{max-width:980px;margin:3rem auto;padding:1.5rem;font-family:system-ui,sans-serif}
+  .admin-links{display:flex;flex-wrap:wrap;gap:.75rem;margin:1rem 0 2rem}
+  .admin-links a{background:#65452f;color:#fff;border-radius:8px;padding:.7rem 1rem;text-decoration:none;font-weight:600}
   section{border:1px solid #ddd;border-radius:10px;padding:1.5rem;margin:1.5rem 0}
   label{display:block;margin:.8rem 0}input{display:block;width:100%;max-width:440px;padding:.6rem;margin-top:.3rem}
   button{padding:.65rem 1rem;cursor:pointer}.danger{color:#9b1c1c}.error{color:#b91c1c}.success{color:#166534}

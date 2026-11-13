@@ -1,14 +1,7 @@
-import { fail, redirect } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { getEmployeeSession } from '../../../lib/server/employeeAuth';
+import { requireAdmin } from '../../../lib/server/requireAdmin';
 import { createEmployeeAccount, deleteEmployeeAccount, listEmployeeAccounts, updateEmployeeAccount } from '../../../lib/server/employeeAdmin';
-
-function requireAdmin(cookies: import('@sveltejs/kit').Cookies) {
-  const employee = getEmployeeSession(cookies.get('heritage_employee_session'));
-  if (!employee) redirect(303, '/employee/login');
-  if (employee.role !== 'admin') redirect(303, '/employee');
-  return employee;
-}
 
 export const load: PageServerLoad = ({ cookies }) => {
   requireAdmin(cookies);
