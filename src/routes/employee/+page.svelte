@@ -61,6 +61,8 @@
     Select an incoming order to review its details and update its status.
   </p>
 
+  <a class="manage-orders-link" href="/employee/manage-orders">Manage Orders</a>
+
   <h2>Incoming Orders</h2>
 
   <div class="queue-controls">
@@ -156,6 +158,16 @@
   h1 { font-size: 2.5rem; margin: .5rem 0; }
   h2 { margin-top: 2.5rem; }
   .notice { background: #fff0d4; padding: 1rem; border-radius: 8px; border: 1px solid #e7ce9f; }
+  .manage-orders-link {
+    display: inline-block;
+    background: #65452f;
+    color: white;
+    padding: .6rem .9rem;
+    border-radius: 7px;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .manage-orders-link:hover { background: #493426; }
   .queue-controls { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin: 1rem 0; }
   .orders { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 1rem; }
   article, .details { background: #fff; border: 1px solid #e5d8c9; border-radius: 12px; padding: 1.2rem; margin-bottom: 1rem; }
