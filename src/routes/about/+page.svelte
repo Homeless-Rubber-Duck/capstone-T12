@@ -79,7 +79,7 @@
 
   <div class="cards">
     {#each family as person}
-      <article class="card">
+      <article class="person">
         {#if person.photo}
           <img
             class="portrait"
@@ -256,7 +256,7 @@
     margin: 0 auto;
   }
 
-  .card {
+  .person {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -283,7 +283,7 @@
     color: var(--cream);
   }
 
-  .card h3 {
+  .person h3 {
     margin: 0;
     font-family: 'Dancing Script', cursive;
     font-size: clamp(2.2rem, 3.5vw, 2.8rem);
