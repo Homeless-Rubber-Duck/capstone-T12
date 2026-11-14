@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
+  import { enhance } from '$app/forms';
   import type { PageData, ActionData } from './$types';
 
   let {
@@ -10,6 +12,31 @@
   } = $props();
 
   let selectedId = $state<number | null>(null);
+  let orderSearch = $state('');
+  let pickupFilter = $state<'upcoming' | 'all'>('upcoming');
+  let statusFilter = $state('');
+  let currentTime = $state(Date.now());
+
+  onMount(() => {
+    currentTime = Date.now();
+    const timer = setInterval(() => (currentTime = Date.now()), 60_000);
+    return () => clearInterval(timer);
+  });
+
+  let searchText = $derived(orderSearch.trim());
+  let orderNumber = $derived(searchText.replace(/^#\s*/, ''));
+  let filteredOrders = $derived.by(() => {
+    const endTime = currentTime + 30 * 60_000;
+
+    return data.orders.filter((order) => {
+      if (statusFilter && order.status !== statusFilter) return false;
+      if (searchText) return String(order.id) === orderNumber;
+      if (pickupFilter === 'all') return true;
+
+      const pickupTime = new Date(order.pickup.replace(' ', 'T')).getTime();
+      return pickupTime >= currentTime && pickupTime <= endTime;
+    });
+  });
 
   let selected = $derived(
     data.orders.find((order) => order.id === selectedId)
@@ -55,8 +82,39 @@
     <div>
       <h2>Orders</h2>
 
-      {#each data.orders as order (order.id)}
+      <div class="filters">
+        <label class="order-search">
+          Order number
+          <input
+            type="search"
+            placeholder="e.g. #123"
+            bind:value={orderSearch}
+            oninput={() => (selectedId = null)}
+            aria-describedby="order-search-hint"
+          />
+          <small id="order-search-hint" class="hint">Search checks all pickup times.</small>
+        </label>
+        <label>
+          Pickup time
+          <select bind:value={pickupFilter} disabled={Boolean(searchText)} onchange={() => (selectedId = null)}>
+            <option value="upcoming">Next 30 Minutes</option>
+            <option value="all">All Pickup Times</option>
+          </select>
+        </label>
+        <label>
+          Status
+          <select bind:value={statusFilter} onchange={() => (selectedId = null)}>
+            <option value="">All Statuses</option>
+            {#each data.statuses as status (status.id)}
+              <option value={status.name}>{status.name}</option>
+            {/each}
+          </select>
+        </label>
+      </div>
+
+      {#each filteredOrders as order (order.id)}
         <button
+          type="button"
           class="order"
           class:active={selectedId === order.id}
           onclick={() => (selectedId = order.id)}
@@ -65,6 +123,8 @@
           <span>{order.customer}</span>
           <small>{order.status} · {order.pickup}</small>
         </button>
+      {:else}
+        <p role="status">No orders match your filters.</p>
       {/each}
     </div>
 
@@ -81,7 +141,7 @@
           {#if locked}
             <p class="error">This order is no longer editable.</p>
           {:else}
-            <form method="POST" action="?/save">
+            <form method="POST" action="?/save" use:enhance>
               <input
                 type="hidden"
                 name="orderId"
@@ -157,6 +217,7 @@
             <form
               method="POST"
               action="?/cancel"
+              use:enhance
               onsubmit={(event) => {
                 if (!confirm('Cancel this order?')) {
                   event.preventDefault();
@@ -206,6 +267,16 @@
     gap: 1.5rem;
     margin-top: 2rem;
   }
+
+  .filters {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .order-search { grid-column: 1 / -1; }
+  .filters input, .filters select { width: 100%; min-width: 0; }
 
   .order, .details {
     background: white;
