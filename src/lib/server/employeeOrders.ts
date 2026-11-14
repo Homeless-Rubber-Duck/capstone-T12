@@ -1,10 +1,12 @@
 import { client } from './db';
+import type { customerOrder } from './db/schema';
 
 export type EmployeeOrder = {
   id: number;
   customer: string;
   status: string;
   pickup: string;
+  flag: typeof customerOrder.$inferSelect.flag;
   items: {
     id: number;
     name: string;
@@ -20,7 +22,8 @@ export function getEmployeeOrders(): EmployeeOrder[] {
       o.order_id AS id,
       c.full_name AS customer,
       s.status_name AS status,
-      o.pickup_time AS pickup
+      o.pickup_time AS pickup,
+      o.flag
     FROM customer_order o
     JOIN customer c ON c.customer_id = o.customer_id
     JOIN order_status s ON s.status_id = o.status_id
