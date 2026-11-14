@@ -1,6 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { getEmployeeSession } from '../../../lib/server/employeeAuth';
+import { getEmployeeStatuses } from '../../../lib/server/employeeOrders';
 import {
   getManagedOrders,
   getAvailableMenuItems,
@@ -18,6 +19,7 @@ export const load: PageServerLoad = ({ cookies }) => {
   return {
     employee,
     orders: getManagedOrders(),
+    statuses: getEmployeeStatuses(),
     menuItems: getAvailableMenuItems()
   };
 };
