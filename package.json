@@ -33,6 +33,7 @@
 		"#lib/*": "./src/lib/*"
 	},
 	"dependencies": {
-		"bootstrap": "^5.3.8"
+		"bootstrap": "^5.3.8",
+		"exceljs": "^4.4.0"
 	}
 }
