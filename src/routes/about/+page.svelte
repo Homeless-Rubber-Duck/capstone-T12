@@ -380,7 +380,6 @@
   }
 
   .map iframe {
-    filter: grayscale(1) contrast(0.95);
     width: 100%;
     height: 100%;
     border: 0;
