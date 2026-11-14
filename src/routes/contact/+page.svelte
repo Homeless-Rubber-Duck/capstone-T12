@@ -1,91 +1,139 @@
 <script lang="ts">
+  // Contact Us page (issue #50). Same layout as before (info card + photo),
+  // cleaned up to match the home and About pages' fonts, colors, and spacing.
   const address = '15825 Hope Village Rd, Suite B, Friendswood, TX 77546';
   const phone = '(832) 569-4556';
   const email = 'heritagecafeo@gmail.com';
+  const directions = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
 </script>
 
 <svelte:head>
   <title>Contact Us | Heritage Café</title>
-  <meta
-    name="description"
-    content="Contact Heritage Café in Friendswood, Texas."
-  />
+  <meta name="description" content="Contact Heritage Café in Friendswood, Texas." />
 </svelte:head>
 
-<section class="contact-page">
-  <h1>Contact Us</h1>
-  <p class="intro">
-    Have a question? We'd love to hear from you.
-    Feel free to visit us or reach out.
-  </p>
+<div class="contact-band">
+  <section class="contact-page" aria-labelledby="contact-heading">
+    <p class="eyebrow">GET IN TOUCH</p>
+    <h1 id="contact-heading">Contact Us</h1>
+    <p class="intro">Have a question? We'd love to hear from you. Feel free to visit us or reach out.</p>
 
-  <div class="contact-content">
-    <div class="contact-details">
-      <h2>Visit Us</h2>
-      <p>{address}</p>
+    <div class="contact-content">
+      <dl class="contact-details">
+        <div>
+          <dt>Visit Us</dt>
+          <dd><a href={directions} target="_blank" rel="noopener noreferrer">{address}</a></dd>
+        </div>
+        <div>
+          <dt>Call Us</dt>
+          <dd><a href="tel:+18325694556">{phone}</a></dd>
+        </div>
+        <div>
+          <dt>Email Us</dt>
+          <dd><a href={`mailto:${email}`}>{email}</a></dd>
+        </div>
+        <div>
+          <dt>Business Hours</dt>
+          <dd>
+            Monday – Saturday: <span class="time">8:00 AM – 8:00 PM</span><br />
+            Sunday: <span class="time">8:30 AM – 8:00 PM</span>
+          </dd>
+        </div>
+      </dl>
 
-      <h2>Call Us</h2>
-      <p><a href="tel:+18325694556">{phone}</a></p>
-
-      <h2>Email Us</h2>
-      <p><a href="mailto:{email}">{email}</a></p>
-
-      <h2>Business Hours</h2>
-      <p>Monday – Saturday: 8:00 AM – 8:00 PM</p>
-      <p>Sunday: 8:30 AM – 8:00 PM</p>
+      <img
+        src="/images/contact-chalk-wall.jpg"
+        alt="Chalk mural wall above a table and chairs at Heritage Café"
+        class="contact-image"
+        width="1066"
+        height="1600"
+      />
     </div>
-
-    <img
-      src="/images/contact-coffee.jpg"
-      alt="Coffee being prepared at Heritage Café"
-      class="contact-image"
-    />
-  </div>
-</section>
+  </section>
+</div>
 
 <style>
+  .contact-band {
+    --ink: #14110c;
+    --cream: #d4d0ce;
+    --stone: #c8c0bb;
+    background: var(--cream);
+    /* fill the layout's minimum page height so no off-white gap shows on big screens */
+    min-height: 75vh;
+  }
+
   .contact-page {
-    padding: 50px 0;
-    color: #473023;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: clamp(2.5rem, 5vw, 3.5rem) 1.5rem;
+    color: var(--ink);
+  }
+
+  .eyebrow {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
   }
 
   h1 {
-    font-size: 36px;
-    font-weight: bold;
-    margin-bottom: 15px;
+    margin: 0.4rem 0 0.8rem;
+    font-family: 'Dancing Script', cursive;
+    font-size: clamp(2.8rem, 5vw, 3.8rem);
+    font-weight: 700;
+    line-height: 1.15;
   }
 
   .intro {
-    color: #755744;
-    margin-bottom: 30px;
+    max-width: 560px;
+    margin: 0 0 2rem;
+    font-size: 1.1rem;
+    line-height: 1.7;
   }
 
   .contact-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 25px;
+    gap: 1.5rem;
     align-items: stretch;
   }
 
   .contact-details {
-    background: #fff;
-    border-radius: 12px;
-    padding: 30px;
+    display: grid;
+    align-content: center;
+    gap: 1.4rem;
+    margin: 0;
+    padding: clamp(1.8rem, 4vw, 2.5rem);
+    background: var(--ink);
+    color: var(--cream);
+    border-radius: 5px;
   }
 
-  h2 {
-    font-size: 20px;
-    margin-top: 15px;
-    margin-bottom: 8px;
+  dt {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--stone);
   }
 
-  p {
+  dd {
+    margin: 0.35rem 0 0;
+    font-size: 1.05rem;
     line-height: 1.6;
   }
 
-  a {
-    color: #755744;
-    text-decoration: none;
+  dd a {
+    color: inherit;
+    text-underline-offset: 3px;
+    overflow-wrap: anywhere;
+  }
+
+  .time { white-space: nowrap; }
+
+  a:focus-visible {
+    outline: 3px solid currentColor;
+    outline-offset: 4px;
   }
 
   .contact-image {
@@ -93,7 +141,8 @@
     height: 100%;
     max-height: 450px;
     object-fit: cover;
-    border-radius: 12px;
+    object-position: 50% 80%;
+    border-radius: 5px;
   }
 
   @media (max-width: 768px) {
@@ -102,7 +151,7 @@
     }
 
     .contact-image {
-      height: 280px;
+      height: 260px;
     }
   }
 </style>
