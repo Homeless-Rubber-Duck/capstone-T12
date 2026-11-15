@@ -1,4 +1,5 @@
 import { client } from './db';
+import { createOrderKey, deleteOrderKey } from './orderAccess';
 
 // Gets all customer orders from SQLite
 export function getOrders() {
@@ -44,6 +45,7 @@ export function deleteOrder(orderId: number) {
         DELETE FROM customer_order
         WHERE order_id = ?
     `).run(orderId);
+    deleteOrderKey(orderId);
 
     return result.changes;
 }
@@ -207,7 +209,9 @@ function findOrCreateCustomer(order: NewOrder) {
 // Places a full customer order from the checkout page: validates it, then saves
 // customer_order (using createOrder above) + order_item + the first status history row
 // in one transaction, so an order is never half-saved.
-export function placeOrder(order: NewOrder): { orderId: number } | { errors: string[] } {
+export function placeOrder(
+	order: NewOrder
+): { orderId: number; key: string } | { errors: string[] } {
 	const errors = validateOrder(order);
 	if (errors.length) return { errors };
 
@@ -238,8 +242,11 @@ export function placeOrder(order: NewOrder): { orderId: number } | { errors: str
 			.prepare(`INSERT INTO order_status_history (order_id, status_id, note) VALUES (?, ?, ?)`)
 			.run(orderId, statusId, 'Order placed');
 
+		// Secret key so only this customer can open the confirmation page (#54)
+		const key = createOrderKey(orderId);
+
 		client.exec('COMMIT');
-		return { orderId };
+		return { orderId, key };
 	} catch (err) {
 		client.exec('ROLLBACK');
 		throw err;
