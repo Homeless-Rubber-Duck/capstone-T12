@@ -3,18 +3,33 @@
   import '../lib/styles.css';
 
   import { onMount } from 'svelte';
-  import favicon from '#lib/assets/favicon.svg';
   import { initCart } from '../lib/cart.svelte';
   import SiteHeader from '../lib/components/SiteHeader.svelte';
   import SiteFooter from '../lib/components/SiteFooter.svelte';
 
   let { children } = $props();
 
-  onMount(initCart);
+  let favicon = $state('/images/darkgray-cup-logo.png');
+
+  onMount(() => {
+    const colorScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+    function updateFavicon() {
+      favicon = colorScheme.matches
+        ? '/images/lightgray-cup-logo.png'
+        : '/images/darkgray-cup-logo.png';
+    }
+
+    updateFavicon();
+    colorScheme.addEventListener('change', updateFavicon);
+    initCart();
+
+    return () => colorScheme.removeEventListener('change', updateFavicon);
+  });
 </script>
 
 <svelte:head>
-  <link rel="icon" href={favicon} />
+  <link rel="icon" type="image/png" href={favicon} />
 </svelte:head>
 
 <SiteHeader />
