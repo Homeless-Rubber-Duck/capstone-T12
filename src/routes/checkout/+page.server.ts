@@ -3,7 +3,7 @@ import { placeOrder, buildPickupTime, type CartLine } from '../../lib/server/ord
 
 export const actions = {
 	// Runs when the customer clicks "Place order"
-	default: async ({ request }) => {
+	default: async ({ request, cookies }) => {
 		const form = await request.formData();
 
 		let lines: CartLine[] = [];
@@ -31,6 +31,15 @@ export const actions = {
 		});
 
 		if ('errors' in result) return fail(400, { errors: result.errors });
+
+		// Save the order's secret key in a cookie on this browser only (#54).
+		// The order page checks this cookie, so other people can't open /order/1, /order/2...
+		cookies.set(`order_${result.orderId}`, result.key, {
+			path: `/order/${result.orderId}`,
+			httpOnly: true, // page scripts can't read it
+			sameSite: 'lax',
+			maxAge: 60 * 60 * 24 * 30 // keep for 30 days
+		});
 
 		// Send the customer to their confirmation page
 		redirect(303, `/order/${result.orderId}`);

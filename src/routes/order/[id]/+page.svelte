@@ -30,6 +30,7 @@
 	</ul>
 	<p class="total">Total: {money(order.total)}</p>
 	<p class="hint">Pay at pickup.</p>
+	<p class="hint">You can come back to this page on this device to check your order.</p>
 
 	<a href="/menu">Place another order</a>
 </main>
