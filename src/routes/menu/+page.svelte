@@ -102,6 +102,7 @@
         margin-bottom: 28px;
         font-size: 2.2rem;
         font-weight: 700;
+        text-align: center;
     }
 
     .menu-category {
