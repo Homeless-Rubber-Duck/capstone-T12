@@ -102,11 +102,12 @@
         margin-bottom: 28px;
         font-size: 2.2rem;
         font-weight: 700;
+        text-align: center;
     }
 
     .menu-category {
         max-width: 700px;
-        margin-bottom: 16px;
+        margin: 0 auto 16px;
         border: 1px solid #d4d0ce;
         border-radius: 10px;
         background: #fffaf4;
@@ -214,7 +215,7 @@
     }
 
     .checkout-link:hover {
-        background: var(--cafe-text);
+        background: #28372d;
         color: white;
     }
 
@@ -235,7 +236,7 @@
         .cart-preview {
     		left: 0;
     		right: 0;
-    		bottom: 0;
+    		bottom: calc(var(--footer-summary-height, 42px) + 8px);
     		width: auto;
     		max-height: 55vh;
     		padding: 0;
