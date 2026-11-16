@@ -1,43 +1,134 @@
 <script lang="ts">
-  import type { PageData } from './$types';
   import { onMount } from 'svelte';
-  let { data }: { data: PageData } = $props();
+  import { enhance } from '$app/forms';
+  import { orderFlags } from '../../lib/employeeOrderFlags';
+  import type { ActionData, PageData } from './$types';
+  import { invalidate } from '$app/navigation';
+
+  let { data, form }: { data: PageData; form: ActionData } = $props();
 
   let selectedId = $state<number | null>(null);
   let statusFilter = $state('All');
-  let timeFilter = $state('Upcoming');
+
+  const pickupViews = ['Next 30 Minutes', 'All Day', 'History'] as const;
+  const closedStatuses = new Set(['completed', 'picked up', 'canceled', 'cancelled']);
+
+  const cafeClock = new Intl.DateTimeFormat('sv-SE', {
+    timeZone: 'America/Chicago',
+    dateStyle: 'short',
+    timeStyle: 'short'
+  });
+
+  let pickupView = $state<(typeof pickupViews)[number]>('Next 30 Minutes');
+
   let currentTime = $state(Date.now());
 
   onMount(() => {
-    currentTime = Date.now();
+    let refreshing = false;
 
-    const timer = setInterval(() => {
+    async function refreshOrders() {
+      if (document.hidden || refreshing) return;
+
       currentTime = Date.now();
-    }, 60000);
+      refreshing = true;
 
-    return () => clearInterval(timer);
-});
+      try {
+        await invalidate('app:employee-orders');
+      } catch (error) {
+        console.error('Could not refresh employee orders:', error);
+      } finally {
+        refreshing = false;
+      }
+    }
+
+    const timer = window.setInterval(refreshOrders, 15_000);
+    document.addEventListener('visibilitychange', refreshOrders);
+
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener('visibilitychange', refreshOrders);
+    };
+  });
 
   let orders = $derived(data.orders ?? []);
   let statuses = $derived(data.statuses ?? []);
 
-  let filteredOrders = $derived.by(() => {
-  const now = currentTime;
-  const next30Minutes = now + 30 * 60 * 1000;
+  function pickupTimestamp(value: string) {
+    return Date.parse(value.replace(' ', 'T') + 'Z');
+  }
 
-  return orders.filter((order) => {
-    const matchesStatus =
-      statusFilter === 'All' || order.status === statusFilter;
+  const minute = 60_000;
+  const tenMinutes = 10 * minute;
+  const hour = 60 * minute;
 
-    const pickupTime = new Date(order.pickup.replace(' ', 'T')).getTime();
+  let cafeNow = $derived(cafeClock.format(currentTime));
+  let now = $derived(pickupTimestamp(cafeNow));
 
-    const matchesTime =
-      timeFilter === 'All' ||
-      (pickupTime >= now && pickupTime <= next30Minutes);
-
-    return matchesStatus && matchesTime;
+  const pickupTimeLabel = new Intl.DateTimeFormat('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZone: 'UTC'
   });
-});
+
+  let filteredOrders = $derived.by(() => {
+    const cafeDate = cafeNow.slice(0, 10);
+    const next30Minutes = now + 30 * minute;
+
+    return orders
+      .filter((order) => {
+        if (statusFilter !== 'All' && order.status !== statusFilter) return false;
+
+        const pickupDate = order.pickup.slice(0, 10);
+        const closed = closedStatuses.has(order.status.toLowerCase());
+
+        if (pickupView === 'History') return closed || pickupDate < cafeDate;
+        if (closed) return false;
+        if (pickupView === 'All Day') return pickupDate === cafeDate;
+
+        const pickup = pickupTimestamp(order.pickup);
+        return pickup >= now && pickup <= next30Minutes;
+      })
+      .sort((a, b) => {
+        const difference = pickupTimestamp(a.pickup) - pickupTimestamp(b.pickup);
+        return pickupView === 'History' ? -difference : difference;
+      });
+  });
+
+  let orderGroups = $derived.by(() => {
+    const groups = new Map<string, {
+      label: string;
+      orders: typeof filteredOrders;
+    }>();
+
+    for (const order of filteredOrders) {
+      const pickup = pickupTimestamp(order.pickup);
+      let key: string;
+      let label: string;
+
+      if (pickupView === 'History') {
+        key = order.pickup.slice(0, 10);
+        label = key;
+      } else if (pickupView === 'All Day') {
+        const start = Math.floor(pickup / hour) * hour;
+        key = String(start);
+        label = pickupTimeLabel.format(start);
+      } else {
+        const bucket = Math.min(2, Math.floor((pickup - now) / tenMinutes));
+        const start = now + bucket * tenMinutes;
+        key = String(bucket);
+        label = `${pickupTimeLabel.format(start)} – ${pickupTimeLabel.format(start + tenMinutes)}`;
+      }
+
+      const group = groups.get(key);
+      if (group) {
+        group.orders.push(order);
+      } else {
+        groups.set(key, { label, orders: [order] });
+      }
+    }
+
+    return Array.from(groups, ([key, group]) => ({ key, ...group }));
+  });
 
   let selected = $derived(
     orders.find((order) => order.id === selectedId)
@@ -77,25 +168,40 @@
         <option value={status.name}>{status.name}</option>
       {/each}
     </select>
-    <label for="time-filter">Pickup time</label>
 
-    <select id="time-filter" bind:value={timeFilter}>
-      <option value="Upcoming">Next 30 Minutes</option>
-      <option value="All">All Pickup Times</option>
-    </select>
     <span>{filteredOrders.length} order(s)</span>
+  </div>
+
+  <div class="queue-controls pickup-views" role="group" aria-label="Pickup view">
+    {#each pickupViews as view}
+      <button
+        type="button"
+        aria-pressed={pickupView === view}
+        onclick={() => (pickupView = view)}
+      >
+        {view}
+      </button>
+    {/each}
   </div>
 
   {#if filteredOrders.length === 0}
     <p class="notice">No orders match the selected filters.</p>
   {/if}
 
-  <div class="orders">
-    {#each filteredOrders as order (order.id)}
-      <article>
+  {#each orderGroups as group (group.key)}
+    <h3 class="pickup-group">{group.label}</h3>
+
+    <div class="orders">
+      {#each group.orders as order (order.id)}
+      {@const flag = orderFlags.find((option) => option.value === order.flag)}
+      <article data-flag={order.flag ?? undefined}>
         <div class="top">
           <strong>Order #{order.id}</strong>
           <span class="status">{order.status}</span>
+
+          {#if flag}
+            <span class="order-flag">{flag.label}</span>
+          {/if}
         </div>
 
         <p>{order.customer} · Pickup {order.pickup}</p>
@@ -110,6 +216,7 @@
       </article>
     {/each}
   </div>
+{/each}
 
   {#if selected}
     <section class="details">
@@ -121,6 +228,36 @@
       <p>Customer: {selected.customer}</p>
       <p>Pickup: {selected.pickup}</p>
       <p>Status: {selected.status}</p>
+
+      <form method="POST" action="?/updateFlag" use:enhance>
+        <input type="hidden" name="orderId" value={selected.id} />
+
+        <fieldset>
+          <legend>Order flag</legend>
+          <div class="queue-controls">
+            {#each orderFlags as option}
+              <button
+                type="submit"
+                name="flag"
+                value={option.value}
+                aria-pressed={selected.flag === option.value}
+              >
+                {option.label}
+              </button>
+            {/each}
+
+            <button type="submit" name="flag" value="" disabled={selected.flag === null}>
+              Clear flag
+            </button>
+          </div>
+        </fieldset>
+      </form>
+
+      {#if form?.error}
+        <p class="notice" role="alert">{form.error}</p>
+      {:else if form?.message}
+        <p role="status">{form.message}</p>
+      {/if}
 
       <form method="POST" action="?/updateStatus" class="queue-controls">
         <input type="hidden" name="orderId" value={selected.id} />
@@ -199,5 +336,40 @@
 
   .admin-link:hover {
     background: #493426;
+  }
+
+  article[data-flag="priority"] { --flag-color: #8f2828; }
+  article[data-flag="drinks"] { --flag-color: #205c83; }
+  article[data-flag="food"] { --flag-color: #346242; }
+
+  article[data-flag] {
+    border-left: 5px solid var(--flag-color);
+  }
+
+  .order-flag {
+    color: var(--flag-color);
+    font-weight: 700;
+  }
+
+  fieldset button {
+    min-height: 44px;
+  }
+
+  fieldset button[aria-pressed="true"] {
+    box-shadow: inset 0 0 0 2px currentColor;
+  }
+
+  .pickup-views button {
+    min-height: 44px;
+  }
+
+  .pickup-views button[aria-pressed="false"] {
+    background: #efe5d6;
+    color: #493426;
+  }
+
+  .pickup-group {
+    font-size: 1.1rem;
+    margin: 1.5rem 0 0.75rem;
   }
 </style>

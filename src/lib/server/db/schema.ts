@@ -91,6 +91,7 @@ export const customerOrder = sqliteTable('customer_order', {
 		.notNull()
 		.references(() => orderStatus.statusId),
 	pickupTime: text('pickup_time').notNull(),
+	flag: text('flag', { enum: ['priority', 'drinks', 'food'] }),
 	createdAt: text('created_at').notNull().default(now)
 });
 
