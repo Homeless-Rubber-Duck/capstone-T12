@@ -1,5 +1,7 @@
 import { client } from './db';
 import { createOrderKey, deleteOrderKey } from './orderAccess';
+import { orderTotals, SALES_TAX_BASIS_POINTS, toCents } from '../orderPricing';
+import { COOKING_NOTICE, isCookingService, onlineOptions, type MenuOption, type MenuOptionGroup } from '../menuOptions';
 
 // Gets all customer orders from SQLite
 export function getOrders() {
@@ -14,13 +16,14 @@ export function getOrders() {
 export function createOrder(
     customerId: number,
     statusId: number,
-    pickupTime: string
+    pickupTime: string,
+    salesTaxBasisPoints = 0
 ) {
     const result = client.prepare(`
         INSERT INTO customer_order
-        (customer_id, status_id, pickup_time)
-        VALUES (?, ?, ?);
-    `).run(customerId, statusId, pickupTime);
+        (customer_id, status_id, pickup_time, sales_tax_basis_points)
+        VALUES (?, ?, ?, ?);
+    `).run(customerId, statusId, pickupTime, salesTaxBasisPoints);
 
     return result.lastInsertRowid;
 }
@@ -58,7 +61,13 @@ export function deleteOrder(orderId: number) {
 // ---------- Types ----------
 
 // What the checkout page sends to the server.
-export type CartLine = { menuItemId: number; quantity: number; notes?: string };
+export type CartLine = {
+	menuItemId: number;
+	quantity: number;
+	notes?: string;
+	modifierOptionIds?: number[];
+	price?: number;
+};
 
 export type NewOrder = {
 	fullName: string;
@@ -82,6 +91,53 @@ const MAX_QUANTITY = 20;
 
 // ---------- Menu for the ordering page ----------
 
+// All modifier groups and options for one or all menu items.
+function getModifierGroups(menuItemId?: number) {
+	const rows = client.prepare(`
+		SELECT DISTINCT
+			link.menu_item_id AS menuItemId,
+			g.modifier_group_id AS modifierGroupId,
+			g.group_name AS groupName,
+			g.min_selection AS minSelection,
+			g.max_selection AS maxSelection,
+			o.modifier_option_id AS modifierOptionId,
+			o.option_name AS optionName,
+			o.price_adjustment AS priceAdjustment
+		FROM menu_item_modifier_group link
+		JOIN modifier_group g ON g.modifier_group_id = link.modifier_group_id
+		LEFT JOIN modifier_option o
+			ON o.modifier_group_id = g.modifier_group_id
+			AND o.is_available = 1
+		WHERE (? IS NULL OR link.menu_item_id = ?)
+		ORDER BY g.display_order, g.modifier_group_id, o.display_order, o.modifier_option_id
+	`).all(menuItemId ?? null, menuItemId ?? null) as (
+		Omit<MenuOptionGroup, 'options'> &
+		(MenuOption | { modifierOptionId: null }) &
+		{ menuItemId: number }
+	)[];
+
+	const groupsByItem = new Map<number, MenuOptionGroup[]>();
+
+	for (const row of rows) {
+		const { menuItemId, modifierGroupId, groupName, minSelection, maxSelection } = row;
+		const groups = groupsByItem.get(menuItemId) ?? [];
+		groupsByItem.set(menuItemId, groups);
+
+		let group = groups.find((group) => group.modifierGroupId === modifierGroupId);
+		if (!group) {
+			group = { modifierGroupId, groupName, minSelection, maxSelection, options: [] };
+			groups.push(group);
+		}
+
+		if (row.modifierOptionId !== null) {
+			const { modifierOptionId, optionName, priceAdjustment } = row;
+			group.options.push({ modifierOptionId, optionName, priceAdjustment });
+		}
+	}
+
+	return groupsByItem;
+}
+
 // Active categories (in display order) with their available items.
 export function getMenuForOrdering() {
 	const categories = client
@@ -102,10 +158,22 @@ export function getMenuForOrdering() {
 		)
 		.all() as MenuItemRow[];
 
+	const groupsByItem = getModifierGroups();
+
 	return categories
 		.map((category) => ({
 			...category,
-			items: items.filter((item) => item.categoryId === category.categoryId)
+			items: items
+				.filter((item) => item.categoryId === category.categoryId)
+				.map((item) => {
+					const groups = groupsByItem.get(item.menuItemId) ?? [];
+
+					return {
+						...item,
+						packagedOnly: groups.some(isCookingService),
+						groups: groups.filter((group) => !isCookingService(group))
+					};
+				})
 		}))
 		.filter((category) => category.items.length > 0);
 }
@@ -215,41 +283,109 @@ export function placeOrder(
 	const errors = validateOrder(order);
 	if (errors.length) return { errors };
 
-	const priced: { line: CartLine; item: NonNullable<ReturnType<typeof getAvailableItem>> }[] = [];
-	for (const line of order.lines) {
-		const item = getAvailableItem(line.menuItemId);
-		if (!item) return { errors: ['One of the items in your order is no longer available.'] };
-		priced.push({ line, item });
-	}
+	client.exec('BEGIN IMMEDIATE');
 
-	client.exec('BEGIN');
 	try {
+		const priced: {
+			line: CartLine;
+			item: NonNullable<ReturnType<typeof getAvailableItem>>;
+			options: MenuOption[];
+		}[] = [];
+
+		for (const line of order.lines) {
+			const item = getAvailableItem(line.menuItemId);
+			if (!item) {
+				return { errors: ['One of the items in your order is no longer available.'] };
+			}
+
+			const groups = getModifierGroups(item.menuItemId).get(item.menuItemId) ?? [];
+			const selectedIds = line.modifierOptionIds ?? [];
+			const selected = new Set(selectedIds);
+
+			const requestedCooking = groups.some(
+				(group) =>
+					isCookingService(group) &&
+					group.options.some((option) => selected.has(option.modifierOptionId))
+			);
+			if (requestedCooking) return { errors: [COOKING_NOTICE] };
+
+			const options: MenuOption[] = [];
+
+			for (const group of onlineOptions(item.menuItemId, groups, selectedIds)) {
+				const choices = group.options.filter((option) => selected.has(option.modifierOptionId));
+
+				if (
+					choices.length < group.minSelection ||
+					(group.maxSelection !== null && choices.length > group.maxSelection)
+				) {
+					return { errors: [`Please reselect ${group.groupName} for ${item.name} on the menu.`] };
+				}
+
+				options.push(...choices);
+			}
+
+			if (options.length !== selectedIds.length) {
+				return { errors: [`An option for ${item.name} is unavailable or selected more than once.`] };
+			}
+
+			const unitCents = options.reduce(
+				(sum, option) => sum + toCents(option.priceAdjustment),
+				toCents(item.price)
+			);
+
+			if (line.price !== undefined && toCents(line.price) !== unitCents) {
+				return {
+					errors: [`The price for ${item.name} changed. Remove it from your cart and add it again.`]
+				};
+			}
+
+			priced.push({ line, item, options });
+		}
 		const statusId = getFirstStatusId();
 		const customerId = findOrCreateCustomer(order);
-
-		const orderId = Number(createOrder(customerId, statusId, order.pickupTime.replace('T', ' ')));
-
-		const addItem = client.prepare(
-			`INSERT INTO order_item (order_id, menu_item_id, quantity, unit_price, item_notes)
-			 VALUES (?, ?, ?, ?, ?)`
+		const orderId = Number(
+			createOrder(
+				customerId,
+				statusId,
+				order.pickupTime.replace('T', ' '),
+				SALES_TAX_BASIS_POINTS
+			)
 		);
-		for (const { line, item } of priced) {
-			// unit_price = price at the time of the order
-			addItem.run(orderId, item.menuItemId, line.quantity, item.price, line.notes?.trim() || null);
+
+		const addItem = client.prepare(`
+			INSERT INTO order_item (order_id, menu_item_id, quantity, unit_price, item_notes)
+			VALUES (?, ?, ?, ?, ?)
+		`);
+
+		const addModifier = client.prepare(`
+			INSERT INTO order_item_modifier (order_item_id, modifier_option_id, price_adjustment)
+			VALUES (?, ?, ?)
+		`);
+
+		for (const { line, item, options } of priced) {
+			const { lastInsertRowid } = addItem.run(
+				orderId,
+				item.menuItemId,
+				line.quantity,
+				item.price,
+				line.notes?.trim() || null
+			);
+
+			for (const option of options) {
+				addModifier.run(lastInsertRowid, option.modifierOptionId, option.priceAdjustment);
+			}
 		}
 
 		client
 			.prepare(`INSERT INTO order_status_history (order_id, status_id, note) VALUES (?, ?, ?)`)
 			.run(orderId, statusId, 'Order placed');
 
-		// Secret key so only this customer can open the confirmation page (#54)
 		const key = createOrderKey(orderId);
 
 		client.exec('COMMIT');
 		return { orderId, key };
-	} catch (err) {
-		client.exec('ROLLBACK');
-		throw err;
+	} finally {
+		if (client.isTransaction) client.exec('ROLLBACK');
 	}
 }
 
@@ -259,27 +395,63 @@ export function getOrderSummary(orderId: number) {
 	const order = client
 		.prepare(
 			`SELECT o.order_id AS orderId, o.pickup_time AS pickupTime, o.created_at AS createdAt,
-			        s.status_name AS status, c.full_name AS customerName
+			        s.status_name AS status, c.full_name AS customerName,
+					o.sales_tax_basis_points AS salesTaxBasisPoints
 			 FROM customer_order o
 			 JOIN order_status s ON s.status_id = o.status_id
 			 JOIN customer c ON c.customer_id = o.customer_id
 			 WHERE o.order_id = ?`
 		)
 		.get(orderId) as
-		| { orderId: number; pickupTime: string; createdAt: string; status: string; customerName: string }
+		| { orderId: number; pickupTime: string; createdAt: string; status: string; customerName: string; salesTaxBasisPoints: number }
 		| undefined;
 
 	if (!order) return null;
 
-	const items = client
-		.prepare(
-			`SELECT m.name, i.quantity, i.unit_price AS unitPrice, i.item_notes AS notes
-			 FROM order_item i
-			 JOIN menu_item m ON m.menu_item_id = i.menu_item_id
-			 WHERE i.order_id = ?`
-		)
-		.all(orderId) as { name: string; quantity: number; unitPrice: number; notes: string | null }[];
+	const itemRows = client.prepare(`
+		SELECT i.order_item_id AS itemId, m.name, i.quantity,
+		       i.unit_price AS baseUnitPrice, i.item_notes AS notes
+		FROM order_item i
+		JOIN menu_item m ON m.menu_item_id = i.menu_item_id
+		WHERE i.order_id = ?
+		ORDER BY i.order_item_id
+	`).all(orderId) as {
+		itemId: number;
+		name: string;
+		quantity: number;
+		baseUnitPrice: number;
+		notes: string | null;
+	}[];
 
-	const total = items.reduce((sum, i) => sum + i.quantity * i.unitPrice, 0);
-	return { ...order, items, total: Math.round(total * 100) / 100 };
+	const getModifiers = client.prepare(`
+		SELECT mo.option_name AS name, om.price_adjustment AS priceAdjustment
+		FROM order_item_modifier om
+		JOIN modifier_option mo ON mo.modifier_option_id = om.modifier_option_id
+		WHERE om.order_item_id = ?
+		ORDER BY om.order_item_modifier_id
+	`);
+
+	let subtotalCents = 0;
+
+	const items = itemRows.map(({ itemId, baseUnitPrice, ...item }) => {
+		const modifiers = getModifiers.all(itemId) as {
+			name: string;
+			priceAdjustment: number;
+		}[];
+
+		const unitCents = modifiers.reduce(
+			(sum, modifier) => sum + toCents(modifier.priceAdjustment),
+			toCents(baseUnitPrice)
+		);
+
+		subtotalCents += unitCents * item.quantity;
+
+		return { ...item, unitPrice: unitCents / 100, modifiers };
+	});
+
+	return {
+		...order,
+		items,
+		...orderTotals(subtotalCents, order.salesTaxBasisPoints)
+	};
 }

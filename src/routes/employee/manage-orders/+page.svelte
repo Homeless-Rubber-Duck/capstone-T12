@@ -48,15 +48,6 @@
           .includes(selected.status.toLowerCase())
       : false
   );
-
-  let total = $derived(
-    selected
-      ? selected.items.reduce(
-          (sum, item) => sum + item.quantity * item.unitPrice,
-          0
-        )
-      : 0
-  );
 </script>
 
 <svelte:head>
@@ -210,7 +201,11 @@
                 </label>
               </div>
 
-              <p><strong>Current item subtotal:</strong> ${total.toFixed(2)}</p>
+              <p><strong>Current item subtotal:</strong> ${selected.subtotal.toFixed(2)}</p>
+              {#if selected.salesTaxBasisPoints > 0}
+                <p><strong>Sales tax:</strong> ${selected.salesTax.toFixed(2)}</p>
+              {/if}
+              <p><strong>Total due:</strong> ${selected.total.toFixed(2)}</p>
               <button type="submit">Save Changes</button>
             </form>
 

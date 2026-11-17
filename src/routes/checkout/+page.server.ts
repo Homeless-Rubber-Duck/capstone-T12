@@ -6,13 +6,26 @@ export const actions = {
 	default: async ({ request, cookies }) => {
 		const form = await request.formData();
 
-		let lines: CartLine[] = [];
+		let lines: CartLine[];
 		try {
-			lines = JSON.parse(String(form.get('cart') ?? '[]')).map((l: CartLine) => ({
-				menuItemId: Number(l.menuItemId),
-				quantity: Number(l.quantity),
-				notes: typeof l.notes === 'string' ? l.notes : ''
-			}));
+			lines = JSON.parse(String(form.get('cart') ?? '[]')).map((line: CartLine) => {
+				const modifierOptionIds = line.modifierOptionIds ?? [];
+
+				if (
+					!Array.isArray(modifierOptionIds) ||
+					!modifierOptionIds.every((id) => Number.isSafeInteger(id) && id > 0)
+				) {
+					throw new Error('Invalid modifier option IDs');
+				}
+
+				return {
+					menuItemId: Number(line.menuItemId),
+					quantity: Number(line.quantity),
+					notes: typeof line.notes === 'string' ? line.notes.slice(0, 500) : '',
+					modifierOptionIds,
+					price: typeof line.price === 'number' ? line.price : undefined
+				};
+			});
 		} catch {
 			return fail(400, { errors: ['Your order could not be read. Please try again.'] });
 		}
