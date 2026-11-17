@@ -1,0 +1,1 @@
+ALTER TABLE `customer_order` ADD `sales_tax_basis_points` integer DEFAULT 0 NOT NULL;

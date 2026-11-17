@@ -1,10 +1,15 @@
 import { client } from './db';
+import { orderTotals, toCents } from '../orderPricing';
 
 export type ManagedOrder = {
   id: number;
   customer: string;
   status: string;
   pickup: string;
+  salesTaxBasisPoints: number;
+  subtotal: number;
+  salesTax: number;
+  total: number;
   items: {
     id: number;
     name: string;
@@ -15,12 +20,13 @@ export type ManagedOrder = {
   }[];
 };
 
-type OrderRow = Omit<ManagedOrder, 'items'>;
+type OrderRow = Omit<ManagedOrder, 'items' | 'subtotal' | 'salesTax' | 'total'>;
 
 export function getManagedOrders(): ManagedOrder[] {
   const orders = client.prepare(`
     SELECT o.order_id AS id, c.full_name AS customer,
-           s.status_name AS status, o.pickup_time AS pickup
+           s.status_name AS status, o.pickup_time AS pickup,
+            o.sales_tax_basis_points AS salesTaxBasisPoints
     FROM customer_order o
     JOIN customer c ON c.customer_id = o.customer_id
     JOIN order_status s ON s.status_id = o.status_id
@@ -36,26 +42,43 @@ export function getManagedOrders(): ManagedOrder[] {
   `);
 
   const getModifiers = client.prepare(`
-    SELECT mo.option_name AS name
+    SELECT mo.option_name AS name, oim.price_adjustment AS priceAdjustment
     FROM order_item_modifier oim
     JOIN modifier_option mo
       ON mo.modifier_option_id = oim.modifier_option_id
     WHERE oim.order_item_id = ?
   `);
 
-  return orders.map((order) => ({
-    ...order,
-    items: (
-      getItems.all(order.id) as Omit<ManagedOrder['items'][number], 'modifiers'>[]
-    ).map((item) => ({
-      ...item,
-      modifiers: (
-        getModifiers.all(item.id) as { name: string }[]
-      ).map((modifier) => modifier.name)
-    }))
-  }));
-}
+  return orders.map((order) => {
+	const items = (
+		getItems.all(order.id) as Omit<ManagedOrder['items'][number], 'modifiers'>[]
+	).map((item) => {
+		const modifiers = getModifiers.all(item.id) as {
+			name: string;
+			priceAdjustment: number;
+		}[];
 
+		const unitCents = modifiers.reduce(
+			(sum, modifier) => sum + toCents(modifier.priceAdjustment),
+			toCents(item.unitPrice)
+		);
+
+		return {
+			...item,
+			unitPrice: unitCents / 100,
+			modifiers: modifiers.map((modifier) => modifier.name)
+		};
+	});
+
+	const subtotalCents = items.reduce(
+		(sum, item) => sum + toCents(item.unitPrice) * item.quantity,
+		0
+	);
+
+	return { ...order, items, ...orderTotals(subtotalCents, order.salesTaxBasisPoints) };
+});
+
+}
 export function getAvailableMenuItems() {
   return client.prepare(`
     SELECT menu_item_id AS id, name, price

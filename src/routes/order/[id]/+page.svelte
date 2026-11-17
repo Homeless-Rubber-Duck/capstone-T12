@@ -23,12 +23,35 @@
 	<ul>
 		{#each order.items as item}
 			<li>
-				<span>{item.quantity}× {item.name}{#if item.notes}<em class="note">({item.notes})</em>{/if}</span>
+				<span>
+					{item.quantity}× {item.name}
+					{#if item.notes}<em class="note">({item.notes})</em>{/if}
+					{#if item.modifiers.length}
+						<small class="item-options">
+							{item.modifiers.map((modifier) => modifier.name).join(' · ')}
+						</small>
+					{/if}
+				</span>
 				<span>{money(item.quantity * item.unitPrice)}</span>
 			</li>
 		{/each}
 	</ul>
-	<p class="total">Total: {money(order.total)}</p>
+	<dl class="totals">
+		{#if order.salesTaxBasisPoints > 0}
+			<div>
+				<dt>Subtotal</dt>
+				<dd>{money(order.subtotal)}</dd>
+			</div>
+			<div>
+				<dt>Sales tax</dt>
+				<dd>{money(order.salesTax)}</dd>
+			</div>
+		{/if}
+		<div class="total">
+			<dt>Total</dt>
+			<dd>{money(order.total)}</dd>
+		</div>
+	</dl>
 	<p class="hint">Pay at pickup.</p>
 	<p class="hint">You can come back to this page on this device to check your order.</p>
 
@@ -40,7 +63,22 @@
 	.big { font-size: 1.6rem; font-weight: 700; margin: 0; }
 	ul { list-style: none; padding: 0; }
 	li { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
-	.total { font-size: 1.2rem; font-weight: 600; text-align: right; }
+	.totals { margin: 1rem 0; font-variant-numeric: tabular-nums; }
+	.totals > div { display: flex; justify-content: space-between; gap: 1rem; padding: 0.3rem 0;}
+
+	.totals dt,
+	.totals dd { margin: 0; font-weight: 400; }
+
+	.totals .total { margin-top: 0.4rem; padding-top: 0.75rem; border-top: 1px solid #d4d0ce; font-size: 1.15rem; }
+
+	.totals .total dt,
+	.totals .total dd { font-weight: 700; }
 	.hint { color: #666; }
 	.note { margin-left: 6px; color: #666; }
+
+	.item-options {
+		display: block;
+		margin-top: 0.25rem;
+		color: #666;
+	}
 </style>

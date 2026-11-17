@@ -2,6 +2,8 @@
 	import { onMount } from 'svelte';
 	import type { PageProps } from './$types';
 	import { cart, initCart, addToCart, cartCount, cartTotal, money } from '../../lib/cart.svelte';
+    import MenuItemOptions from '../../lib/components/MenuItemOptions.svelte';
+    import { COOKING_NOTICE } from '../../lib/menuOptions';
 
 	let { data }: PageProps = $props();
 
@@ -29,26 +31,32 @@
 	{/if}
 
 	{#each sortedCategories as category (category.categoryId)}
-		<details
-		 	class="menu-category"
-			open={coffeeCategories.includes(category.categoryName.trim())}
-		>
+		<details class="menu-category">
 			<summary>{category.categoryName}</summary>
 			<ul>
 				{#each category.items as item (item.menuItemId)}
 					<li>
-						<div>
-							<strong>{item.name}</strong>
-							{#if item.description}<p>{item.description}</p>{/if}
-						</div>
-						<span class="price">{money(item.price)}</span>
-						<button
-							onclick={() =>
-								addToCart({ menuItemId: item.menuItemId, name: item.name, price: item.price })}
-						>
-							Add
-						</button>
-					</li>
+                        <div>
+                            <strong>{item.name}</strong>
+                            {#if item.description}<p>{item.description}</p>{/if}
+                            {#if item.packagedOnly}<p>{COOKING_NOTICE}</p>{/if}
+                        </div>
+
+                        {#if item.groups.length > 0}
+                            <div class="item-options">
+                                <MenuItemOptions {item} />
+                            </div>
+                        {:else}
+                            <span class="price">{money(item.price)}</span>
+                            <button
+                                type="button"
+                                onclick={() =>
+                                    addToCart({ menuItemId: item.menuItemId, name: item.name, price: item.price })}
+                            >
+                                Add
+                            </button>
+                        {/if}
+                    </li>
 				{/each}
 			</ul>
 		</details>
@@ -69,7 +77,7 @@
             	<h2>Your Cart ({cartCount()})</h2>
 
         	<ul>
-            	{#each cart.lines as item (item.menuItemId)}
+                {#each cart.lines as item (item.id)}
                 	<li>
                     	<span>{item.quantity}x {item.name}</span>
                     	<span>{money(item.price * item.quantity)}</span>
@@ -78,7 +86,7 @@
         	</ul>
 
         	<p class="cart-total">
-            	<strong>Total: {money(cartTotal())}</strong>
+                <strong>Subtotal: {money(cartTotal())}</strong>
         	</p>
 
         	<a class="checkout-link" href="/checkout">
@@ -267,6 +275,21 @@
 
         li > div {
             grid-column: 1 / -1;
+        }
+    }
+
+    .menu-category li:has(> .item-options) {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+        align-items: start;
+    }
+
+    .item-options {
+        min-width: 0;
+    }
+
+    @media (max-width: 600px) {
+        .menu-category li:has(> .item-options) {
+            grid-template-columns: minmax(0, 1fr);
         }
     }
 </style>
